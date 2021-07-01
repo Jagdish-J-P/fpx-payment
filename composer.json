@@ -1,0 +1,57 @@
+{
+	"name": "jagdish-j-p/fpx-payment",
+	"description": "A laravel implementation for FPX payment service",
+	"keywords": [
+		"jagdish-j-p",
+		"FPX",
+		"FPX Payment Gateway",
+		"FPX Pay",
+		"fpx-payment",
+		"Malaysian Payment Gateway"
+	],
+	"homepage": "https://github.com/jagdish-j-p/fpx-payment",
+	"license": "MIT",
+	"type": "library",
+	"authors": [
+		{
+			"name": "Jagdish J P",
+			"email": "jagdish.j.ptl@gmail.com",
+			"role": "Owner"
+		}
+	],
+	"require": {
+		"php": "^7.4|^8.0",
+		"illuminate/support": "^8.0",
+		"nesbot/carbon": "^2.48.0",
+		"laravelcollective/html": "^6.2",
+		"monarobase/country-list": "^3.2"
+	},
+	"require-dev": {
+		"orchestra/testbench": "^6.0",
+		"phpunit/phpunit": "^9.3.3"
+	},
+	"autoload": {
+		"psr-4": {
+			"JagdishJP\\FpxPayment\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"JagdishJP\\FpxPayment\\Tests\\": "tests"
+		}
+	},
+	"scripts": {
+		"test": "vendor/bin/phpunit",
+		"test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+	},
+	"config": {
+		"sort-packages": true
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"JagdishJP\\FpxPayment\\FpxPaymentServiceProvider"
+			]
+		}
+	}
+}
