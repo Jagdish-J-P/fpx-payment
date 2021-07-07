@@ -58,11 +58,11 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 			], 'fpx-controller');
 
 			$this->publishes([
-				__DIR__ . '/../public/assets' => public_path('assets/FPX'),
+				__DIR__ . '/../public/assets' => public_path('assets/vendor/fpx-payment'),
 			], 'fpx-assets');
 
 			$this->publishes([
-				__DIR__ . '/../resources/views/payment.blade.php' => resource_path('views/FPX/payment.blade.php'),
+				__DIR__ . '/../resources/views/payment.blade.php' => resource_path('views/vendor/fpx-payment/payment.blade.php'),
 			], 'fpx-views');
 
 			$this->commands([
