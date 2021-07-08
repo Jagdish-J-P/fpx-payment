@@ -3,6 +3,7 @@
 namespace JagdishJP\FpxPayment;
 
 use JagdishJP\FpxPayment\Commands\UpdateBankListCommand;
+use JagdishJP\FpxPayment\Commands\FpxPublish;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -66,7 +67,8 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 			], 'fpx-views');
 
 			$this->commands([
-				UpdateBankListCommand::class
+				UpdateBankListCommand::class,
+				FpxPublish::class
 			]);
 		}
 	}
