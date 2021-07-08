@@ -3,6 +3,8 @@
 namespace JagdishJP\FpxPayment\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
 class FpxPublish extends Command {
 	/**
@@ -10,7 +12,7 @@ class FpxPublish extends Command {
 	 *
 	 * @var string
 	 */
-	protected $signature = 'fpx:publish';
+	protected $signature = 'fpx:publish {force? : override existing files.}';
 
 	/**
 	 * The console command description.
@@ -36,10 +38,22 @@ class FpxPublish extends Command {
 	public function handle() {
 		$publishables = ['config','controller','assets','views'];
 
+		$force = $this->argument('force');
+
 		foreach($publishables as $publishable){
 
+			if (!empty($force) && !Str::is($force, 'force')) {
+				$this->error("Invalid Argument. syntax: php artisan fpx:publish force");
+				return 0;
+			}
+
+			$parameters = ['--provider' => 'JagdishJP\FpxPayment\FpxPaymentServiceProvider', '--tag' => "fpx-{$publishable}"];
+
+			if(Str::is($force, 'force'))
+			$parameters['--force'] = null;
+
 			$this->info("Publishing {$publishable} file.");
-			\Artisan::call("vendor:publish",['--provider'=>'JagdishJP\FpxPayment\FpxPaymentServiceProvider','--tag'=> "fpx-{$publishable}"]);
+			Artisan::call("vendor:publish",$parameters);
 		}
 
 		$this->info('Publishing completed.');
