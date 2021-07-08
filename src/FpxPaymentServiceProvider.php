@@ -18,7 +18,7 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 
 		$this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
-		$this->loadViewsFrom(__DIR__ . '/../resources/views', 'fpx');
+		$this->loadViewsFrom(__DIR__ . '/../resources/views', 'fpx-payment');
 
 		$this->configureComponents();
 
@@ -36,7 +36,7 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 	}
 
 	public function configureComponents() {
-		Blade::component('fpx::components.pay', 'fpx-pay');
+		Blade::component('fpx-payment::components.pay', 'fpx-pay');
 	}
 
 	public function configureRoutes() {

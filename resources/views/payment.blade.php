@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
         integrity="undefined" crossorigin="anonymous">
-    <link href="{{ asset('assets/FPX/css/form-validation.css') }}" rel="stylesheet">
+    <link href="{{ asset('assets/vendor/fpx-payment/css/form-validation.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -39,7 +39,7 @@
                         <div class="row mb-3">
                             <div class="col-lg-6 col-sm-12">
                                 <div class="custom-control custom-radio">
-                                    <img src="{{ asset('assets/FPX/Images/fpx.svg') }}" height="64px">
+                                    <img src="{{ asset('assets/vendor/fpx-payment/Images/fpx.svg') }}" height="64px">
                                     <input type="hidden" id="fpx" name="payment_mode" value="fpx">
                                 </div>
                             </div>
@@ -48,7 +48,8 @@
                         <div class="row mb-3">
                             <div class="select_bank"></div>
                             <div class="col">
-                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), null, ['class' => 'form-control', 'required' => '']) !!}
+                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), null,
+																['class' => 'form-control', 'required' => '']) !!}
                                 <input type="hidden" name="be_message" id="be_message">
                             </div>
                         </div>
@@ -57,8 +58,7 @@
                             <div class="col">
                                 <div class="custom-control custom-checkbox">
                                     <label class="custom-control-label" for="agree">By clicking on "proceed", you agree
-                                        to
-                                        the <a href="https://www.mepsfpx.com.my/FPXMain/termsAndConditions.jsp"
+                                        to the <a href="https://www.mepsfpx.com.my/FPXMain/termsAndConditions.jsp"
                                             target="_blank">terms and conditions</a> of FPX.</label>
                                 </div>
                             </div>
@@ -83,7 +83,7 @@
 
                         <div class="mb-3">
                             <label for="amount">Amount</label>
-                            <input type="name" class="form-control" id="amount" name="amount" placeholder="1.00"
+                            <input type="number" class="form-control" id="amount" name="amount" placeholder="1.00"
                                 value="" required>
                             <div class="invalid-feedback">
                                 Please enter a valid amount.
@@ -109,8 +109,7 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="product_description">Description <span
-                                    class="text-muted">(Optional)</span></label>
+                            <label for="product_description">Description</label>
                             <textarea class="form-control" id="product_description" name="product_description"
                                 placeholder="Enter Product Description" required></textarea>
                             <div class="invalid-feedback">

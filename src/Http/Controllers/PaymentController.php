@@ -15,7 +15,7 @@ class PaymentController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function handle(Request $request) {
-		return view('fpx::redirect_to_bank', [
+		return view('fpx-payment::redirect_to_bank', [
 			'request' => (new AuthorizationRequest)->handle($request->all()),
 		]);
 	}

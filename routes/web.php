@@ -12,12 +12,12 @@ $indirectPath = Config::get('fpx.indirect_path');
 
 Route::get('fpx/initiate/payment', function () {
 	$banks = Bank::all()->sortBy('name')->pluck('name', 'bank_id');
-	return view('fpx::payment', compact('banks'));
+	return view('fpx-payment::payment', compact('banks'));
 })->name('fpx.initiate.payment');
 
 Route::get('fpx/csr/request', function () {
 	$countries = CountryListFacade::getList('en');
-	return view('fpx::csr_request', compact('countries'));
+	return view('fpx-payment::csr_request', compact('countries'));
 })->name('fpx.csr.request');
 
 Route::post('payment/fpx/auth', [PaymentController::class, 'handle'])->name('fpx.payment.auth.request');
