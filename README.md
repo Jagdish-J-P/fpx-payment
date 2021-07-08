@@ -13,14 +13,14 @@ composer require jagdish-j-p/fpx-payment
 Then run the publish command to publish the config files and support controller
 
 ```bash
-php artisan vendor:publish --provider="JagdishJP\FpxPayment\FPXServiceProvider"
+php artisan fpx:publish
 ```
 
 This will generate the following files
 
 - The config file with default setup for you to override `fpx.php`
 - The controller that will receive payment response and any host-to-host events `Http/Controllers/FPX/Controller.php`
-- The assets directory in public directory.
+- The assets in public directory.
 - The view file with default html for you to override `payment.blade.php`. Note do not change form action URL `fpx.payment.auth.request`.
 
 ## Setups
@@ -37,14 +37,16 @@ FPX_EXCHANGE_ID=
 FPX_SELLER_ID=
 ```
 
-2. You can skip this steps, if you have already generated CSR.
-   Visit `fpx/csr/request` path in browser to generate CSR.
-   ` http://127.0.0.1:8000/fpx/csr/request `
-   Fill the form and click on `GENERATE`. On right side textarea will be generated with openSSL code.
+2. You can skip this steps, if you have already generated CSR. Visit `fpx/csr/request` path in browser to generate CSR.
+   
+	 `http://app.test/fpx/csr/request`
+   
+	 Fill the form and click on `GENERATE`. On right side textarea will be generated with openSSL code.
    Download openSSL from `https://www.openssl.org/` if you don't have installed it.
    Run openssl code to generate CSR. Submit this CSR to FPX service provider to get the Exchange Certificates.
 
-3. After generating your certificates add them to your app. By default, we look for the certificates inside the following directives. create `/certificates/uat` and `/certificates/prod` directories in `storage/app/public` directory and paste your certificates there.
+3. After generating your certificates add them to your app. By default, we look for the certificates inside the following directives. 
+	 Create `/certificates/uat` and `/certificates/prod` directories in `storage/app/public` directory and paste your certificates there.
 
 ```php
 'certificates' => [
@@ -138,7 +140,7 @@ During testing, you can use the `test-mode` attribute to override the provided a
 	}
 ```
 
-You can visit <a href='http://127.0.0.1:8000/fpx/initiate/payment'>http://127.0.0.1:8000/fpx/csr/request</a> for the payment flow demo.
+You can visit <a href='http://app.test/fpx/initiate/payment'>http://app.test/fpx/csr/request</a> for the payment flow demo.
 
 You can also overwrite `payment.blade.php` with your custom design to integrate with your details. but do not change `name` attribute of html controls and `action` URL of form.
 

@@ -39,7 +39,7 @@ class FpxPublish extends Command {
 		foreach($publishables as $publishable){
 
 			$this->info("Publishing {$publishable} file.");
-			\Artisan::call("vendor:publish",[' --provider'=>'JagdishJP\FpxPayment\FpxPaymentServiceProvider',' --tag'=> "fpx-{$publishable}"]);
+			\Artisan::call("vendor:publish",['--provider'=>'JagdishJP\FpxPayment\FpxPaymentServiceProvider','--tag'=> "fpx-{$publishable}"]);
 		}
 
 		$this->info('Publishing completed.');
