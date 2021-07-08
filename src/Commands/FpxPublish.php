@@ -34,17 +34,13 @@ class FpxPublish extends Command {
 	 * @return int
 	 */
 	public function handle() {
-		$this->info('Publishing Config file.');
-		\Artisan::call("vendor:publish --provider='JagdishJP\FpxPayment\FpxPaymentServiceProvider' --tag=fpx-config");
+		$publishables = ['config','controller','assets','views'];
 
-		$this->info('Publishing Controller.');
-		\Artisan::call("vendor:publish --provider='JagdishJP\FpxPayment\FpxPaymentServiceProvider' --tag=fpx-controller");
+		foreach($publishables as $publishable){
 
-		$this->info('Publishing Assets.');
-		\Artisan::call("vendor:publish --provider='JagdishJP\FpxPayment\FpxPaymentServiceProvider' --tag=fpx-assets");
-
-		$this->info('Publishing Payment View.');
-		\Artisan::call("vendor:publish --provider='JagdishJP\FpxPayment\FpxPaymentServiceProvider' --tag=fpx-views");
+			$this->info("Publishing {$publishable} file.");
+			\Artisan::call("vendor:publish",[' --provider'=>'JagdishJP\FpxPayment\FpxPaymentServiceProvider',' --tag'=> "fpx-{$publishable}"]);
+		}
 
 		$this->info('Publishing completed.');
 	}
