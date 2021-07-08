@@ -47,7 +47,13 @@
 	},
 	"scripts": {
 		"test": "vendor/bin/phpunit",
-		"test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+		"test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+		"post-autoload-dump": [
+			"@php artisan vendor:publish --provider='jagdish-j-p\\fpx-payment\\FpxPaymentServiceProvider' --tag=fpx-config",
+			"@php artisan vendor:publish --provider='jagdish-j-p\\fpx-payment\\FpxPaymentServiceProvider' --tag=fpx-controller",
+			"@php artisan vendor:publish --provider='jagdish-j-p\\fpx-payment\\FpxPaymentServiceProvider' --tag=fpx-assets",
+			"@php artisan vendor:publish --provider='jagdish-j-p\\fpx-payment\\FpxPaymentServiceProvider' --tag=fpx-views"
+		]
 	},
 	"config": {
 		"sort-packages": true

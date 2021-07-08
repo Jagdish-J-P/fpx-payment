@@ -51,7 +51,7 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 		if ($this->app->runningInConsole()) {
 			$this->publishes([
 				__DIR__ . '/../config/config.php' => config_path('fpx.php'),
-			], 'config');
+			], 'fpx-config');
 
 			$this->publishes([
 				__DIR__ . '/../stubs/Controller.php' => app_path('Http/Controllers/FPX/Controller.php'),
