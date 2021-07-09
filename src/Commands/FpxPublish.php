@@ -55,6 +55,7 @@ class FpxPublish extends Command {
 			$this->info("Publishing {$publishable} file.");
 			Artisan::call("vendor:publish",$parameters);
 		}
+		Artisan::call("config:cache");
 
 		$this->info('Publishing completed.');
 	}
