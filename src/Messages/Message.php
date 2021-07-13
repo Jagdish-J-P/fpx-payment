@@ -4,6 +4,7 @@ namespace JagdishJP\FpxPayment\Messages;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Config;
+use JagdishJP\FpxPayment\Models\Transaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 
 class Message {
@@ -157,12 +158,20 @@ class Message {
 	protected $initiatedFrom;
 
 	public function __construct() {
-		$this->id = Str::random(12);
+		$this->id = $this->generate_uuid();
 		$this->bankCode = Config::get('fpx.bank_code');
 		$this->flow = self::FLOW_B2C;
 		$this->exchangeId = Config::get('fpx.exchange_id');
 		$this->sellerId = Config::get('fpx.seller_id');
 		$this->currency = Config::get('fpx.currency');
 		$this->version = Config::get('fpx.version');
+	}
+
+	public function generate_uuid(){
+		do{
+			$uuid = Str::uuid();
+		}while(Transaction::where("unique_id", $uuid)->first());
+
+		return $uuid;
 	}
 }

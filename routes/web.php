@@ -10,9 +10,11 @@ use JagdishJP\FpxPayment\Models\Bank;
 $directPath = Config::get('fpx.direct_path');
 $indirectPath = Config::get('fpx.indirect_path');
 
-Route::get('fpx/initiate/payment', function () {
+Route::get('fpx/initiate/payment/{initiated_from?}/{test?}', function ($initiated_from = 'web', $test = '') {
+
 	$banks = Bank::all()->sortBy('name')->pluck('name', 'bank_id');
-	return view('fpx-payment::payment', compact('banks'));
+
+	return view('fpx-payment::payment', compact('banks', 'test', 'initiated_from'));
 })->name('fpx.initiate.payment');
 
 Route::get('fpx/csr/request', function () {

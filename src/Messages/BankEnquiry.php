@@ -117,6 +117,7 @@ class BankEnquiry extends Message implements Contract {
 		$data = $response_value['fpx_bankList'] . "|" . $response_value['fpx_msgToken'] . "|" . $response_value['fpx_msgType'] . "|" . $response_value['fpx_sellerExId'];
 		$checksum = $response_value['fpx_checkSum'];
 
+		if(App::environment('production')) // TODO: Verify response
 		$this->verifySign($checksum, $data);
 
 		$bankListToken = strtok($response_value['fpx_bankList'], ",");
