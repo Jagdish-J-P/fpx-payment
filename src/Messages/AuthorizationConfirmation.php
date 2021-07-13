@@ -2,9 +2,11 @@
 
 namespace JagdishJP\FpxPayment\Messages;
 
+use Illuminate\Support\Facades\App;
 use JagdishJP\FpxPayment\Constant\Response;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
+use JagdishJP\FpxPayment\Models\Transaction;
 
 class AuthorizationConfirmation extends Message implements Contract {
 
@@ -52,7 +54,10 @@ class AuthorizationConfirmation extends Message implements Contract {
 		$this->checkSum = @$options['fpx_checkSum'];
 
 		try {
-			$this->verifySign($this->checkSum, $this->format());
+			if(App::environment()=='production') //TODO: response verification pending
+				$this->verifySign($this->checkSum, $this->format());
+
+			$this->initiated_from = $this->saveTransaction();
 
 			if ($this->debitResponseStatus == self::STATUS_SUCCESS_CODE) {
 				return [
@@ -60,6 +65,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment is successfull',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
+					'initiated_from' => $this->initiated_from,
 				];
 			} elseif ($this->debitResponseStatus == self::STATUS_PENDING_CODE) {
 				return [
@@ -67,6 +73,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment Transaction Pending',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
+					'initiated_from' => $this->initiated_from,
 				];
 			}
 
@@ -75,6 +82,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'message' => @Response::STATUS[$this->debitResponseStatus] ?? 'Payment Request Failed',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
+				'initiated_from' => $this->initiated_from,
 			];
 		} catch (InvalidCertificateException $e) {
 			return [
@@ -90,31 +98,57 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format() {
-		$list = collect([
-			$this->targetBankBranch ?? '',
-			$this->targetBankId ?? '',
-			$this->buyerIBAN ?? '',
-			$this->buyerId ?? '',
-			$this->buyerName ?? '',
-			$this->creditResponseStatus ?? '',
-			$this->creditResponseNumber ?? '',
-			$this->debitResponseStatus ?? '',
-			$this->debitResponseNumber ?? '',
-			$this->foreignId ?? '',
-			$this->foreignTimestamp ?? '',
-			$this->makerName ?? '',
-			$this->flow ?? '',
-			$this->type ?? '',
-			$this->exchangeId ?? '',
-			$this->id ?? '',
-			$this->sellerId ?? '',
-			$this->reference ?? '',
-			$this->timestamp ?? '',
-			$this->amount ?? '',
-			$this->currency ?? '',
-		]);
+	public function format()
+	{
+		return $this->list()->join('|');
+	}
 
-		return $list->join('|');
+	/**
+	 * returns collection of all fields
+	 *
+	 * @return collection
+	 */
+	public function list()
+	{
+			return collect([
+			'targetBankBranch' => $this->targetBankBranch ?? '',
+			'targetBankId' => $this->targetBankId ?? '',
+			'buyerIBAN' => $this->buyerIBAN ?? '',
+			'buyerId' => $this->buyerId ?? '',
+			'buyerName' => $this->buyerName ?? '',
+			'creditResponseStatus' => $this->creditResponseStatus ?? '',
+			'creditResponseNumber' => $this->creditResponseNumber ?? '',
+			'debitResponseStatus' => $this->debitResponseStatus ?? '',
+			'debitResponseNumber' => $this->debitResponseNumber ?? '',
+			'foreignId' => $this->foreignId ?? '',
+			'foreignTimestamp' => $this->foreignTimestamp ?? '',
+			'makerName' => $this->makerName ?? '',
+			'flow' => $this->flow ?? '',
+			'type' => $this->type ?? '',
+			'exchangeId' => $this->exchangeId ?? '',
+			'id' => $this->id ?? '',
+			'sellerId' => $this->sellerId ?? '',
+			'reference' => $this->reference ?? '',
+			'timestamp' => $this->timestamp ?? '',
+			'amount' => $this->amount ?? '',
+			'currency' => $this->currency ?? '',
+		]);
+	}
+
+	/**
+	 * Save response to transaction
+	 *
+	 * @return string initiated from
+	 */
+	public function saveTransaction()
+	{
+		$transaction = Transaction::where(['unique_id'=>$this->id])->first();
+
+		$transaction->transaction_id = $this->foreignId;
+		$transaction->debit_auth_code = $this->debitResponseStatus;
+		$transaction->response_payload = $this->list()->toJson();
+		$transaction->save();
+
+		return $transaction->initiated_from;
 	}
 }

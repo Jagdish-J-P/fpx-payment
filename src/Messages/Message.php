@@ -151,6 +151,11 @@ class Message {
 	 */
 	public $checkSum;
 
+	/**
+	 * Request from App or Web
+	 */
+	protected $initiatedFrom;
+
 	public function __construct() {
 		$this->id = Str::random(12);
 		$this->bankCode = Config::get('fpx.bank_code');
