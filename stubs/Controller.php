@@ -7,13 +7,14 @@ use App\Http\Controllers\Controller as BaseController;
 
 class Controller extends BaseController {
 
-
 	/**
 	 * @param Request $request
 	 * @return Response
 	 */
 	public function callback(Request $request) {
 		$response = $request->handle();
+		if ($response['initiated_from'] == 'app')
+		return response()->json(['response' => $response, 'fpx_response' => $request->all()]);
 
 		// Update your order status
 	}

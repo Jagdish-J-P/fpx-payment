@@ -2,6 +2,7 @@
 
 namespace JagdishJP\FpxPayment\Messages;
 
+use GuzzleHttp\Client;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
@@ -56,46 +57,15 @@ class BankEnquiry extends Message implements Contract {
 	 * connect and excute the request to FPX server
 	 *
 	 */
-	public function connect(Collection $dataList, $dataStr) {
-		//open connection
-		$connection = curl_init();
-		curl_setopt($connection, CURLOPT_SSL_VERIFYPEER, FALSE);
-		curl_setopt($connection, CURLOPT_SSL_VERIFYHOST, FALSE);
+	public function connect(Collection $dataList)
+	{
+		$client = new Client();
+		$response = $client->request('POST', $this->url, [
+			'form_params' => $dataList->toArray()
+		]);
 
-		//set the url, number of POST vars, POST data
-		curl_setopt($connection, CURLOPT_URL, $this->url);
-
-		curl_setopt($connection, CURLOPT_POST, $dataList->count());
-		curl_setopt($connection, CURLOPT_POSTFIELDS, $dataStr);
-
-		// receive server response ...
-		curl_setopt($connection, CURLOPT_RETURNTRANSFER, true);
-		//execute post
-		$response = curl_exec($connection);
-		//close connection
-		curl_close($connection);
-
-		// dd($response, $dataList, $this->formatRequestData());
-
-		return $response;
+		return $response->getBody();
 	}
-
-
-	/**
-	 * Convert the data list to string
-	 *
-	 */
-	public function stringifyData($data) {
-		$result = '';
-
-		foreach ($data as $key => $value) {
-			$result .= $key . '=' . $value . '&';
-		}
-		rtrim($result, '&');
-
-		return $result;
-	}
-
 
 	/**
 	 * Parse the bank list response
@@ -114,10 +84,14 @@ class BankEnquiry extends Message implements Contract {
 		}
 
 
-		$data = $response_value['fpx_bankList'] . "|" . $response_value['fpx_msgToken'] . "|" . $response_value['fpx_msgType'] . "|" . $response_value['fpx_sellerExId'];
+		$data = $response_value['fpx_bankList'] . "|" .
+						$response_value['fpx_msgToken'] . "|" .
+						$response_value['fpx_msgType']  . "|" .
+						$response_value['fpx_sellerExId'];
+
 		$checksum = $response_value['fpx_checkSum'];
 
-		if(App::environment('production')) // TODO: Verify response
+		if (App::environment('production') || Config::get('fpx.should_verify_response'))
 		$this->verifySign($checksum, $data);
 
 		$bankListToken = strtok($response_value['fpx_bankList'], ",");

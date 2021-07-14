@@ -74,6 +74,15 @@ return [
 	'bank_code' => env('FPX_BANK_CODE', '01'),
 
 	/**
+	 *
+	 * Optional
+	 * Is response received from FPX required to be verified? (true/false)
+	 * Ensure that value of should_verify_response must be true in production Environment
+	 *
+	 */
+	'should_verify_response' => env('FPX_VERIFY_RESPONSE', true),
+
+	/**
 	 * Certificate Paths
 	 *
 	 */

@@ -3,6 +3,7 @@
 namespace JagdishJP\FpxPayment\Messages;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use JagdishJP\FpxPayment\Constant\Response;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
@@ -54,7 +55,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 		$this->checkSum = @$options['fpx_checkSum'];
 
 		try {
-			if(App::environment()=='production') //TODO: response verification pending
+			if(App::environment('production') || Config::get('fpx.should_verify_response'))
 				$this->verifySign($this->checkSum, $this->format());
 
 			$this->initiated_from = $this->saveTransaction();

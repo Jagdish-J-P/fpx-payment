@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use JagdishJP\FpxPayment\Commands\PaymentStatusCommand;
 
 class FpxPaymentServiceProvider extends ServiceProvider {
 	/**
@@ -64,11 +65,13 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 
 			$this->publishes([
 				__DIR__ . '/../resources/views/payment.blade.php' => resource_path('views/vendor/fpx-payment/payment.blade.php'),
+				__DIR__ . '/../resources/views/payment_status.blade.php' => resource_path('views/vendor/fpx-payment/payment_status.blade.php'),
 			], 'fpx-views');
 
 			$this->commands([
 				UpdateBankListCommand::class,
-				FpxPublish::class
+				FpxPublish::class,
+				PaymentStatusCommand::class
 			]);
 		}
 	}

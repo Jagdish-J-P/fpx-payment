@@ -24,6 +24,7 @@
 
         <form class="needs-validation" novalidate method="POST" action="{{ route('fpx.payment.auth.request') }}">
             @csrf
+            <input type="hidden" name="initiated_from" value="{{ $initiated_from }}" />
             <input type="hidden" name="flow" value="01" />
             <input type="hidden" name="reference_id" value="{{ uniqid() }}" />
 
@@ -48,7 +49,7 @@
                         <div class="row mb-3">
                             <div class="select_bank"></div>
                             <div class="col">
-                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), null,
+                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), $test ? 'TEST0021' : null,
 																['class' => 'form-control', 'required' => '']) !!}
                                 <input type="hidden" name="be_message" id="be_message">
                             </div>
@@ -74,7 +75,7 @@
                             <div class="col-md-12 mb-3">
                                 <label for="customer_name">Buyer name</label>
                                 <input type="text" class="form-control" id="customer_name" name="customer_name"
-                                    placeholder="Enter buyer name" value="" required>
+                                    placeholder="Enter buyer name" value="{{ $test ? 'Test Buyer Name' : '' }}" required>
                                 <div class="invalid-feedback">
                                     Valid buyer name is required.
                                 </div>
@@ -83,8 +84,8 @@
 
                         <div class="mb-3">
                             <label for="amount">Amount</label>
-                            <input type="number" class="form-control" id="amount" name="amount" placeholder="1.00"
-                                value="" required>
+                            <input type="number" class="form-control" id="amount" name="amount"
+                            placeholder="1.00" value="{{ $test ? '1.0' : '' }}" required>
                             <div class="invalid-feedback">
                                 Please enter a valid amount.
                             </div>
@@ -92,8 +93,9 @@
 
                         <div class="mb-3">
                             <label for="customer_email">Email</label>
-                            <input type="email" class="form-control" id="customer_email" name="customer_email" value=""
-                                placeholder="you@example.com" required>
+                            <input type="email" class="form-control" id="customer_email"
+                            name="customer_email" value="{{ $test ? 'you@example.net' : '' }}"
+                            placeholder="you@example.com" required>
                             <div class="invalid-feedback">
                                 Please enter a valid email address.
                             </div>
@@ -101,8 +103,9 @@
 
                         <div class="mb-3">
                             <label for="fpx_buyerTelephone">Telephone</label>
-                            <input type="tel " class="form-control" id="fpx_buyerTelephone" name="fpx_buyerTelephone"
-                                value="" placeholder="01XXXXXXXX" required>
+                            <input type="tel " class="form-control" id="fpx_buyerTelephone"
+                            name="fpx_buyerTelephone" value="{{ $test ? '9999999999' : '' }}"
+                            placeholder="01XXXXXXXX" required>
                             <div class="invalid-feedback">
                                 Please enter a valid telephone no.
                             </div>
@@ -111,7 +114,7 @@
                         <div class="mb-3">
                             <label for="product_description">Description</label>
                             <textarea class="form-control" id="product_description" name="product_description"
-                                placeholder="Enter Product Description" required></textarea>
+                                placeholder="Enter Product Description" required>{{ $test ? 'Test Data' : '' }}</textarea>
                             <div class="invalid-feedback">
                                 Please enter product description
                             </div>
