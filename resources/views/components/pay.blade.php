@@ -12,6 +12,6 @@
 	{{ $slot }}
 
 	<div class="flex w-full justify-end mt-5">
-		<button type="submit" {{ $attributes->merge(['class' => 'border-indigo-600 bg-indigo-600 focus:ring-indigo-400 hover:bg-indigo-400 text-white transition-all duration-300 transform ease-in hover:-translate-y-0.5 focus:outline-none hover:shadow-btn-black-200 focus:ring-4 focus:ring-gray-300 focus:ring-opacity-50 hover:opacity-75 focus:ring-4 focus:ring-opacity-50 focus:shadow-btn-black-100-inset shadow-btn-black-100 px-4 py-1 text-sm rounded-md font-semibold']) }}>{{ $title ?? 'Pay' }}</button>
+		<button type="submit" {{ $attributes }}>{{ $title ?? 'Pay' }}</button>
 	</div>
 </form>

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 
 class FpxPublish extends Command {
+
 	/**
 	 * The name and signature of the console command.
 	 *
@@ -36,11 +37,11 @@ class FpxPublish extends Command {
 	 * @return int
 	 */
 	public function handle() {
-		$publishables = ['config','controller','assets','views'];
+		$publishables = ['config', 'controller', 'assets', 'views'];
 
 		$force = $this->argument('force');
 
-		foreach($publishables as $publishable){
+		foreach ($publishables as $publishable) {
 
 			if (!empty($force) && !Str::is($force, 'force')) {
 				$this->error("Invalid Argument. syntax: php artisan fpx:publish force");
@@ -49,12 +50,14 @@ class FpxPublish extends Command {
 
 			$parameters = ['--provider' => 'JagdishJP\FpxPayment\FpxPaymentServiceProvider', '--tag' => "fpx-{$publishable}"];
 
-			if(Str::is($force, 'force'))
-			$parameters['--force'] = null;
+			if (Str::is($force, 'force'))
+				$parameters['--force'] = null;
 
 			$this->info("Publishing {$publishable} file.");
-			Artisan::call("vendor:publish",$parameters);
+
+			Artisan::call("vendor:publish", $parameters);
 		}
+
 		Artisan::call("config:cache");
 
 		$this->info('Publishing completed.');

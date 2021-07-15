@@ -2,12 +2,14 @@
 
 namespace JagdishJP\FpxPayment\Commands;
 
-use JagdishJP\FpxPayment\Models\Bank;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
+use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
 use JagdishJP\FpxPayment\Messages\AuthEnquiry;
+use JagdishJP\FpxPayment\Models\Transaction;
 
-class PaymentStatusCommand extends Command
-{
+class PaymentStatusCommand extends Command {
+
 	/**
 	 * The name and signature of the console command.
 	 *
@@ -27,8 +29,7 @@ class PaymentStatusCommand extends Command
 	 *
 	 * @return void
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct();
 	}
 
@@ -37,58 +38,72 @@ class PaymentStatusCommand extends Command
 	 *
 	 * @return int
 	 */
-	public function handle()
-	{
-		$handler = new AuthEnquiry;
-		$reference_id = $this->argument('reference_id');
-		$handler->handle(['reference_id' => $reference_id]);
+	public function handle() {
 
-		$dataList = $handler->getData();
-		try {
-			$response = $handler->connect($dataList);
-			$token = strtok($response, "&");
+		$reference_ids = $this->argument('reference_id');
+		if ($reference_ids) {
+			$reference_ids = explode(',', $reference_ids);
+		}
+		else{
+			$reference_ids = Transaction::whereNull('debit_auth_code')->orWhere('debit_auth_code' , AuthEnquiry::STATUS_PENDING_CODE)->get('reference_id')->toArray();
+		}
 
-			$responseData = $handler->parseStatusResponse($token);
+		if($reference_ids){
+			try {
+				$bar = $this->output->createProgressBar(count($reference_ids));
+				$bar->start();
+				foreach ($reference_ids as $row) {
+					$handler = new AuthEnquiry;
+					$handler->handle(['reference_id' => $row['reference_id']]);
 
-			if ($responseData === false) {
-				$this->error('We could not find any data');
-				return;
-			}
+					$dataList = $handler->getData();
+					$response = $handler->connect($dataList);
 
-			dd($responseData);
-			$this->newLine();
+					$token = strtok($response, "&");
 
-			/* $bar = $this->output->createProgressBar(count($bankList));
-			$bar->start();
+					$responseData = $handler->parseResponse($token);
 
-			foreach ($bankList as $key => $status) {
-				$bankId = explode(" - ", $key)[1];
-				$bank = $handler->getBanks($bankId);
+					$bar->advance();
+					if ($responseData === false) {
+						$status[$row['reference_id']] = [
+							'status' => 'failed',
+							'message' => 'We could not find any data',
+							'transaction_id' => null,
+							'reference_id' => $row['reference_id'],
+						];
+						continue;
+					}
 
-				Bank::updateOrCreate(['bank_id' => $bankId], [
-					'status' => $status == 'A' ? 'Online' : 'Offline',
-					'name' => $bank['name'],
-					'short_name' => $bank['short_name']
+					$status[$row['reference_id']] = $responseData;
+				}
+
+				$this->newLine();
+				$this->newLine();
+
+				$this->table(collect(Arr::first($status))->keys(), $status);
+				$this->newLine();
+
+				$bar->finish();
+			} catch (InvalidCertificateException $e) {
+				return [
+					'status' => 'failed',
+					'message' => "Failed to verify the request origin",
+					'transaction_id' => null,
+					'reference_id' => $row['reference_id'],
+				];
+			} catch (\Exception $e) {
+				$this->error($e->getMessage());
+				logger("Transaction Status", [
+					'message' => $e->getMessage(),
 				]);
 
-				$bar->advance();
 			}
-
-			$bar->finish();
-			 */
-		} catch (InvalidCertificateException $e) {
-			return [
-				'status' => 'failed',
-				'message' => "Failed to verify the request origin",
-				'transaction_id' => null,
-				'reference_id' => $reference_id,
-			];
-		} catch (\Exception $e) {
-			logger("Bank Updating failed", [
-				'message' => $e->getMessage(),
+		}
+		else{
+			$this->error("There is no Pending transactions.");
+			logger("Transaction Status", [
+				'message' => 'There is no Pending transactions.',
 			]);
-			$this->error("request failed due to " . $e->getMessage());
-			throw $e;
 		}
 	}
 }

@@ -17,7 +17,7 @@ class Message {
 	 * 03 = B2B2
 	 */
 	public $flow;
-	public const FLOW_B2C = '01';
+	public const FLOW_B2C  = '01';
 	public const FLOW_B2B1 = '02';
 	public const FLOW_B2B2 = '03';
 
@@ -158,19 +158,20 @@ class Message {
 	protected $initiatedFrom;
 
 	public function __construct() {
+
 		$this->id = $this->generate_uuid();
-		$this->bankCode = Config::get('fpx.bank_code');
 		$this->flow = self::FLOW_B2C;
+		$this->bankCode = Config::get('fpx.bank_code');
 		$this->exchangeId = Config::get('fpx.exchange_id');
 		$this->sellerId = Config::get('fpx.seller_id');
 		$this->currency = Config::get('fpx.currency');
 		$this->version = Config::get('fpx.version');
 	}
 
-	public function generate_uuid(){
-		do{
+	public function generate_uuid() {
+		do {
 			$uuid = Str::uuid();
-		}while(Transaction::where("unique_id", $uuid)->first());
+		} while (Transaction::where("unique_id", $uuid)->first());
 
 		return $uuid;
 	}

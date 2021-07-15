@@ -3,10 +3,11 @@
 namespace JagdishJP\FpxPayment\Messages;
 
 use GuzzleHttp\Client;
-use JagdishJP\FpxPayment\Contracts\Message as Contract;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use JagdishJP\FpxPayment\Contracts\Message as Contract;
 
 class BankEnquiry extends Message implements Contract {
 
@@ -64,7 +65,7 @@ class BankEnquiry extends Message implements Contract {
 			'form_params' => $dataList->toArray()
 		]);
 
-		return $response->getBody();
+		return Str::replace("\n", '', $response->getBody());
 	}
 
 	/**

@@ -2,7 +2,6 @@
 
 namespace JagdishJP\FpxPayment\Messages;
 
-use Illuminate\Support\Arr;
 use JagdishJP\FpxPayment\Constant\Type;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
@@ -12,8 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use JagdishJP\FpxPayment\Models\Transaction;
 
-class AuthorizationRequest extends Message implements Contract
-{
+class AuthorizationRequest extends Message implements Contract {
 	use VerifyCertificate;
 
 	/**
@@ -28,8 +26,7 @@ class AuthorizationRequest extends Message implements Contract
 	public $url;
 
 
-	public function __construct()
-	{
+	public function __construct() {
 		parent::__construct();
 
 		$this->url = App::environment('production') ?
@@ -43,8 +40,7 @@ class AuthorizationRequest extends Message implements Contract
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function handle($options)
-	{
+	public function handle($options) {
 		$data = Validator::make($options, [
 			'flow' => ['required', Rule::in([Type::FLOW_B2C])],
 			'reference_id' => 'required',
@@ -82,8 +78,7 @@ class AuthorizationRequest extends Message implements Contract
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format()
-	{
+	public function format() {
 		return $this->list()->join('|');
 	}
 
@@ -92,8 +87,7 @@ class AuthorizationRequest extends Message implements Contract
 	 *
 	 * @return collection
 	 */
-	public function list()
-	{
+	public function list() {
 		return collect([
 			'buyerAccountNumber' => $this->buyerAccountNumber ?? '',
 			'targetBankBranch' => $this->targetBankBranch ?? '',
@@ -121,8 +115,8 @@ class AuthorizationRequest extends Message implements Contract
 	/**
 	 * Save request to transaction
 	 */
-	public function saveTransaction()
-	{
+	public function saveTransaction() {
+
 		$transaction = new Transaction;
 		$transaction->unique_id = $this->id;
 		$transaction->reference_id = $this->reference;

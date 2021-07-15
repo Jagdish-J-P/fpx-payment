@@ -3,17 +3,21 @@
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FPX\Controller;
+use JagdishJP\FpxPayment\Fpx;
 use JagdishJP\FpxPayment\Http\Controllers\PaymentController;
 use JagdishJP\FpxPayment\Http\Controllers\PaymentStatusController;
 use Monarobase\CountryList\CountryListFacade;
-use JagdishJP\FpxPayment\Models\Bank;
+
 
 $directPath = Config::get('fpx.direct_path');
 $indirectPath = Config::get('fpx.indirect_path');
 
 Route::get('fpx/initiate/payment/{initiated_from?}/{test?}', function ($initiated_from = 'web', $test = '') {
-	$banks = Bank::all()->sortBy('name')->pluck('name', 'bank_id');
-	return view('fpx-payment::payment', compact('banks', 'test', 'initiated_from'));
+	$banks = Fpx::getBankList();
+	$banks = Fpx::getBankList(true);
+    $data = ['referenceId' => uniqid(), 'amount' => '1.00', 'customerEmail' => 'jagdish1230@gmail.com',
+    'customerName' => 'test', 'datetime' => null, 'desc' => 'test', 'title' => 'Submit and Pay', 'banks' => $banks,'test'=>$test,'initiated_from'=> $initiated_from];
+	return view('fpx-payment::payment', $data);
 })->name('fpx.initiate.payment');
 
 Route::get('fpx/payment/status/{initiated_from?}/{test?}', function ($initiated_from = 'web', $test = '') {

@@ -38,7 +38,7 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 	}
 
 	public function configureComponents() {
-		Blade::component('fpx-payment::components.pay', 'fpx-pay');
+		Blade::component('fpx-payment::components.pay', 'fpx-payment');
 	}
 
 	public function configureRoutes() {

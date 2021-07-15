@@ -5,9 +5,9 @@ namespace JagdishJP\FpxPayment\Messages;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use JagdishJP\FpxPayment\Constant\Response;
+use JagdishJP\FpxPayment\Models\Transaction;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
-use JagdishJP\FpxPayment\Models\Transaction;
 
 class AuthorizationConfirmation extends Message implements Contract {
 
@@ -42,7 +42,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 		$this->debitResponseNumber = @$options['fpx_debitAuthNo'];
 		$this->foreignId = @$options['fpx_fpxTxnId'];
 		$this->foreignTimestamp = @$options['fpx_fpxTxnTime'];
-		$this->makerName = @$options['fpx_makerName'];
+		$this->buyerMakerName = @$options['fpx_makerName'];
 		$this->flow = @$options['fpx_msgToken'];
 		$this->type = @$options['fpx_msgType'];
 		$this->exchangeId = @$options['fpx_sellerExId'];
@@ -55,7 +55,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 		$this->checkSum = @$options['fpx_checkSum'];
 
 		try {
-			if(App::environment('production') || Config::get('fpx.should_verify_response'))
+			if (App::environment('production') || Config::get('fpx.should_verify_response'))
 				$this->verifySign($this->checkSum, $this->format());
 
 			$this->initiated_from = $this->saveTransaction();
@@ -99,8 +99,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format()
-	{
+	public function format() {
 		return $this->list()->join('|');
 	}
 
@@ -109,30 +108,29 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 *
 	 * @return collection
 	 */
-	public function list()
-	{
-			return collect([
-			'targetBankBranch' => $this->targetBankBranch ?? '',
-			'targetBankId' => $this->targetBankId ?? '',
-			'buyerIBAN' => $this->buyerIBAN ?? '',
-			'buyerId' => $this->buyerId ?? '',
-			'buyerName' => $this->buyerName ?? '',
-			'creditResponseStatus' => $this->creditResponseStatus ?? '',
-			'creditResponseNumber' => $this->creditResponseNumber ?? '',
-			'debitResponseStatus' => $this->debitResponseStatus ?? '',
-			'debitResponseNumber' => $this->debitResponseNumber ?? '',
-			'foreignId' => $this->foreignId ?? '',
-			'foreignTimestamp' => $this->foreignTimestamp ?? '',
-			'makerName' => $this->makerName ?? '',
-			'flow' => $this->flow ?? '',
-			'type' => $this->type ?? '',
-			'exchangeId' => $this->exchangeId ?? '',
-			'id' => $this->id ?? '',
-			'sellerId' => $this->sellerId ?? '',
-			'reference' => $this->reference ?? '',
-			'timestamp' => $this->timestamp ?? '',
-			'amount' => $this->amount ?? '',
-			'currency' => $this->currency ?? '',
+	public function list() {
+		return collect([
+			'fpx_buyerBankBranch' => $this->targetBankBranch ?? '',
+			'fpx_buyerBankId' => $this->targetBankId ?? '',
+			'fpx_buyerIban' => $this->buyerIBAN ?? '',
+			'fpx_buyerId' => $this->buyerId ?? '',
+			'fpx_buyerName' => $this->buyerName ?? '',
+			'fpx_creditAuthCode' => $this->creditResponseStatus ?? '',
+			'fpx_creditAuthNo' => $this->creditResponseNumber ?? '',
+			'fpx_debitAuthCode' => $this->debitResponseStatus ?? '',
+			'fpx_debitAuthNo' => $this->debitResponseNumber ?? '',
+			'fpx_fpxTxnId' => $this->foreignId ?? '',
+			'fpx_fpxTxnTime' => $this->foreignTimestamp ?? '',
+			'fpx_makerName' => $this->buyerMakerName ?? '',
+			'fpx_msgToken' => $this->flow ?? '',
+			'fpx_msgType' => $this->type ?? '',
+			'fpx_sellerExId' => $this->exchangeId ?? '',
+			'fpx_sellerExOrderNo' => $this->id ?? '',
+			'fpx_sellerId' => $this->sellerId ?? '',
+			'fpx_sellerOrderNo' => $this->reference ?? '',
+			'fpx_sellerTxnTime' => $this->timestamp ?? '',
+			'fpx_txnAmount' => $this->amount ?? '',
+			'fpx_txnCurrency' => $this->currency ?? '',
 		]);
 	}
 
@@ -141,10 +139,12 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 *
 	 * @return string initiated from
 	 */
-	public function saveTransaction()
-	{
-		$transaction = Transaction::where(['unique_id'=>$this->id])->first();
+	public function saveTransaction() {
+		$transaction = Transaction::where(['unique_id' => $this->id])->firstOrNew();
 
+		$transaction->reference_id = $this->reference;
+		$transaction->request_payload = $transaction->initiated_from = '';
+		$transaction->unique_id = $this->id;
 		$transaction->transaction_id = $this->foreignId;
 		$transaction->debit_auth_code = $this->debitResponseStatus;
 		$transaction->response_payload = $this->list()->toJson();
