@@ -13,7 +13,7 @@ class Controller extends BaseController {
 	 */
 	public function callback(Request $request) {
 		$response = $request->handle();
-		if ($response['initiated_from'] == 'app')
+		if ($response['response_format'] == 'JSON')
 		return response()->json(['response' => $response, 'fpx_response' => $request->all()]);
 
 		// Update your order status

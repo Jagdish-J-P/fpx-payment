@@ -24,9 +24,8 @@
 
         <form class="needs-validation" novalidate method="POST" action="{{ route('fpx.payment.auth.request') }}">
             @csrf
-            <input type="hidden" name="initiated_from" value="{{ $initiated_from }}" />
-            <input type="hidden" name="flow" value="01" />
-            <input type="hidden" name="reference_id" value="{{ uniqid() }}" />
+            <input type="hidden" name="response_format" value="{{ $response_format }}" />
+            <input type="hidden" name="reference_id" value="{{ $reference_id ?? uniqid() }}" />
 
             {{ implode(',', $errors->all()) }}
             <div class="row">
@@ -41,7 +40,6 @@
                             <div class="col-lg-6 col-sm-12">
                                 <div class="custom-control custom-radio">
                                     <img src="{{ asset('assets/vendor/fpx-payment/Images/fpx.svg') }}" height="64px">
-                                    <input type="hidden" id="fpx" name="payment_mode" value="fpx">
                                 </div>
                             </div>
                         </div>
@@ -49,9 +47,7 @@
                         <div class="row mb-3">
                             <div class="select_bank"></div>
                             <div class="col">
-                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), $test ? 'TEST0021' : null,
-																['class' => 'form-control', 'required' => '']) !!}
-                                <input type="hidden" name="be_message" id="be_message">
+                                {!! Form::select('bank_id', [null => 'Select Bank'] + $banks->toArray(), $test ? 'TEST0021' : null, ['class' => 'form-control', 'required' => '']) !!}
                             </div>
                         </div>
 
@@ -74,8 +70,9 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label for="customer_name">Buyer name</label>
-                                <input type="text" class="form-control" id="customer_name" name="customer_name"
-                                    placeholder="Enter buyer name" value="{{ $test ? 'Test Buyer Name' : '' }}" required>
+                                <input type="text" class="form-control" id="customer_name" name="customer_name" readonly
+                                    placeholder="Enter buyer name"
+                                    value="{{ $test ? 'Test Buyer Name' : $request->customer_name }}" required>
                                 <div class="invalid-feedback">
                                     Valid buyer name is required.
                                 </div>
@@ -84,8 +81,8 @@
 
                         <div class="mb-3">
                             <label for="amount">Amount</label>
-                            <input type="number" class="form-control" id="amount" name="amount"
-                            placeholder="1.00" value="{{ $test ? '1.0' : '' }}" required>
+                            <input type="number" class="form-control" id="amount" name="amount" readonly
+                                placeholder="1.00" value="{{ $test ? '1.0' : $request->amount }}" required>
                             <div class="invalid-feedback">
                                 Please enter a valid amount.
                             </div>
@@ -93,30 +90,31 @@
 
                         <div class="mb-3">
                             <label for="customer_email">Email</label>
-                            <input type="email" class="form-control" id="customer_email"
-                            name="customer_email" value="{{ $test ? 'you@example.net' : '' }}"
-                            placeholder="you@example.com" required>
+                            <input type="email" class="form-control" id="customer_email" readonly name="customer_email"
+                                value="{{ $test ? 'you@example.net' : $request->customer_email }}"
+                                placeholder="you@example.com" required>
                             <div class="invalid-feedback">
                                 Please enter a valid email address.
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="fpx_buyerTelephone">Telephone</label>
-                            <input type="tel " class="form-control" id="fpx_buyerTelephone"
-                            name="fpx_buyerTelephone" value="{{ $test ? '9999999999' : '' }}"
+                        {{-- <div class="mb-3">
+                            <label for="customer_telephone">Telephone</label>
+                            <input type="tel " class="form-control" id="customer_telephone"
+                            name="customer_telephone" value="{{ $test ? '9999999999' : '' }}"
                             placeholder="01XXXXXXXX" required>
                             <div class="invalid-feedback">
                                 Please enter a valid telephone no.
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="mb-3">
-                            <label for="product_description">Description</label>
-                            <textarea class="form-control" id="product_description" name="product_description"
-                                placeholder="Enter Product Description" required>{{ $test ? 'Test Data' : '' }}</textarea>
+                            <label for="remark">Remark</label>
+                            <textarea class="form-control" id="remark" name="remark"
+                                placeholder="Enter Product Description"
+                                readonly>{{ $test ? 'Test Data' : $request->remark }}</textarea>
                             <div class="invalid-feedback">
-                                Please enter product description
+                                Please enter valid remark
                             </div>
                         </div>
                     </div>

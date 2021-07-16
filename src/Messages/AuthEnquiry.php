@@ -13,7 +13,8 @@ use JagdishJP\FpxPayment\Models\Transaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 
-class AuthEnquiry extends Message implements Contract {
+class AuthEnquiry extends Message implements Contract
+{
 	use VerifyCertificate;
 
 	/**
@@ -35,7 +36,8 @@ class AuthEnquiry extends Message implements Contract {
 	public $url;
 
 
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 
 		$this->type = self::CODE;
@@ -51,10 +53,11 @@ class AuthEnquiry extends Message implements Contract {
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function handle($options) {
+	public function handle($options)
+	{
 		$data = Validator::make($options, [
 			'reference_id' => 'required',
-			'initiated_from' => 'nullable',
+			'response_format' => 'nullable',
 		])->validate();
 
 		$tranction = Transaction::where('reference_id', $data['reference_id'])->firstOrFail();
@@ -73,7 +76,7 @@ class AuthEnquiry extends Message implements Contract {
 		$this->targetBankId = $data['buyerId'];
 		$this->id = $data['id'];
 		$this->checkSum = $this->getCheckSum($this->format());
-		$this->initiatedFrom = $data['initiated_from'] ?? 'web';
+		$this->responseFormat = $data['response_format'] ?? 'HTML';
 
 		return $this;
 	}
@@ -82,7 +85,8 @@ class AuthEnquiry extends Message implements Contract {
 	 * connect and excute the request to FPX server
 	 *
 	 */
-	public function connect(Collection $dataList) {
+	public function connect(Collection $dataList)
+	{
 		$client = new Client();
 		$response = $client->request('POST', $this->url, [
 			'form_params' => $dataList->toArray()
@@ -94,7 +98,8 @@ class AuthEnquiry extends Message implements Contract {
 	 * get request data from
 	 *
 	 */
-	public function getData() {
+	public function getData()
+	{
 		$data = $this->list();
 		$data['fpx_checkSum'] = $this->getCheckSum($this->format());
 
@@ -106,7 +111,8 @@ class AuthEnquiry extends Message implements Contract {
 	 *
 	 * @return collection
 	 */
-	public function list() {
+	public function list()
+	{
 		return collect([
 			'fpx_buyerAccNo' => $this->buyerAccountNumber ?? '',
 			'fpx_buyerBankBranch' => $this->targetBankBranch ?? '',
@@ -135,7 +141,8 @@ class AuthEnquiry extends Message implements Contract {
 	 * Parse the status response
 	 *
 	 */
-	public function parseResponse($response) {
+	public function parseResponse($response)
+	{
 		if ($response == 'ERROR' || !$response) {
 			return false;
 		}
@@ -173,7 +180,7 @@ class AuthEnquiry extends Message implements Contract {
 		if (App::environment('production') || Config::get('fpx.should_verify_response'))
 			$this->verifySign($this->checksum, $this->responseFormat());
 
-		$this->initiated_from = $this->saveTransaction();
+		$this->response_format = $this->saveTransaction();
 
 		if ($this->debitResponseStatus == self::STATUS_SUCCESS_CODE) {
 			return [
@@ -181,7 +188,7 @@ class AuthEnquiry extends Message implements Contract {
 				'message' => 'Payment is successfull',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
-				'initiated_from' => $this->initiated_from,
+				'response_format' => $this->response_format,
 			];
 		}
 
@@ -191,7 +198,7 @@ class AuthEnquiry extends Message implements Contract {
 				'message' => 'Payment Transaction Pending',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
-				'initiated_from' => $this->initiated_from,
+				'response_format' => $this->response_format,
 			];
 		}
 
@@ -200,7 +207,7 @@ class AuthEnquiry extends Message implements Contract {
 			'message' => @Response::STATUS[$this->debitResponseStatus] ?? 'Payment Request Failed',
 			'transaction_id' => $this->foreignId,
 			'reference_id' => $this->reference,
-			'initiated_from' => $this->initiated_from,
+			'response_format' => $this->response_format,
 		];
 	}
 
@@ -208,7 +215,8 @@ class AuthEnquiry extends Message implements Contract {
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format() {
+	public function format()
+	{
 		return $this->list()->join('|');
 	}
 
@@ -218,7 +226,8 @@ class AuthEnquiry extends Message implements Contract {
 	 *
 	 * @return string
 	 */
-	public function responseFormat() {
+	public function responseFormat()
+	{
 		return $this->responseList()->join('|');
 	}
 
@@ -227,7 +236,8 @@ class AuthEnquiry extends Message implements Contract {
 	 *
 	 * @return collection
 	 */
-	public function responseList() {
+	public function responseList()
+	{
 		return collect([
 			'fpx_buyerBankBranch' => $this->targetBankBranch ?? '',
 			'fpx_buyerBankId' => $this->targetBankId ?? '',
@@ -258,7 +268,8 @@ class AuthEnquiry extends Message implements Contract {
 	 *
 	 * @return string initiated from
 	 */
-	public function saveTransaction() {
+	public function saveTransaction()
+	{
 		$transaction = Transaction::where(['unique_id' => $this->id])->first();
 
 		$transaction->transaction_id = $this->foreignId;
@@ -266,6 +277,6 @@ class AuthEnquiry extends Message implements Contract {
 		$transaction->response_payload = $this->responseList()->toJson();
 		$transaction->save();
 
-		return $transaction->initiated_from;
+		return $transaction->response_format;
 	}
 }

@@ -155,7 +155,7 @@ class Message {
 	/**
 	 * Request from App or Web
 	 */
-	protected $initiatedFrom;
+	protected $responseFormat;
 
 	public function __construct() {
 

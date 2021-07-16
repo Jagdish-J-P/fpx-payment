@@ -2,16 +2,15 @@
 
 namespace JagdishJP\FpxPayment\Messages;
 
-use JagdishJP\FpxPayment\Constant\Type;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use JagdishJP\FpxPayment\Models\Transaction;
 
-class AuthorizationRequest extends Message implements Contract {
+class AuthorizationRequest extends Message implements Contract
+{
 	use VerifyCertificate;
 
 	/**
@@ -26,7 +25,8 @@ class AuthorizationRequest extends Message implements Contract {
 	public $url;
 
 
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 
 		$this->url = App::environment('production') ?
@@ -40,14 +40,15 @@ class AuthorizationRequest extends Message implements Contract {
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function handle($options) {
+	public function handle($options)
+	{
 		$data = Validator::make($options, [
-			'flow' => ['required', Rule::in([Type::FLOW_B2C])],
+			/* 'flow' => ['required', Rule::in([Type::FLOW_B2C])], */
 			'reference_id' => 'required',
 			'datetime' => 'nullable',
 			'currency' => 'nullable',
-			'initiated_from' => 'nullable',
-			'product_description' => 'required',
+			'response_format' => 'nullable',
+			'remark' => 'nullable',
 			'amount' => 'required',
 			'customer_name' => 'required',
 			'customer_email' => 'required',
@@ -56,17 +57,17 @@ class AuthorizationRequest extends Message implements Contract {
 
 
 		$this->type = self::CODE;
-		$this->flow = $data['flow'];
+		//	$this->flow = $data['flow'];
 		$this->reference = $data['reference_id'];
 		$this->timestamp = $data['datetime'] ?? date("YmdHis");
 		$this->currency = $data['currency'] ?? $this->currency;
-		$this->productDescription = $data['product_description'];
+		$this->productDescription = $data['remark'] ?? ' ';
 		$this->amount = $data['amount'];
 		$this->buyerEmail = $data['customer_email'];
 		$this->buyerName = $data['customer_name'];
 		$this->targetBankId = $data['bank_id'];
 		$this->checkSum = $this->getCheckSum($this->format());
-		$this->initiatedFrom = $data['initiated_from'] ?? 'web';
+		$this->responseFormat = $data['response_format'] ?? 'HTML';
 
 		$this->saveTransaction();
 
@@ -78,7 +79,8 @@ class AuthorizationRequest extends Message implements Contract {
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format() {
+	public function format()
+	{
 		return $this->list()->join('|');
 	}
 
@@ -87,7 +89,8 @@ class AuthorizationRequest extends Message implements Contract {
 	 *
 	 * @return collection
 	 */
-	public function list() {
+	public function list()
+	{
 		return collect([
 			'buyerAccountNumber' => $this->buyerAccountNumber ?? '',
 			'targetBankBranch' => $this->targetBankBranch ?? '',
@@ -115,12 +118,13 @@ class AuthorizationRequest extends Message implements Contract {
 	/**
 	 * Save request to transaction
 	 */
-	public function saveTransaction() {
+	public function saveTransaction()
+	{
 
 		$transaction = new Transaction;
 		$transaction->unique_id = $this->id;
 		$transaction->reference_id = $this->reference;
-		$transaction->initiated_from = $this->initiatedFrom;
+		$transaction->response_format = $this->responseFormat;
 		$transaction->request_payload = $this->list()->toJson();
 		$transaction->save();
 	}

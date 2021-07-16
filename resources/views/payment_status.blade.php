@@ -24,7 +24,7 @@
 
         <form class="needs-validation" novalidate method="POST" action="{{ route('fpx.payment.auth.enquiry') }}">
             @csrf
-            <input type="hidden" name="initiated_from" value="{{ $initiated_from }}" />
+            <input type="hidden" name="response_format" value="{{ $response_format }}" />
 
             {{ implode(',', $errors->all()) }}
             <div class="row">

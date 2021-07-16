@@ -9,6 +9,12 @@ use JagdishJP\FpxPayment\Models\Bank;
 
 class Fpx {
 
+	/**
+	 * returns collection of bank_id and name
+	 *
+	 * @param bool $getLatest (optional) pass true to get latest banks
+	 * @return \Illuminate\Support\Collection
+	 */
 	public static function getBankList(bool $getLatest = false) {
 		if ($getLatest) {
 			try {
@@ -19,8 +25,7 @@ class Fpx {
 				$bankList = $bankEnquiry->parseBanksList($token);
 
 				if ($bankList === false) {
-					return 'We could not find any data';
-					return;
+					throw new Exception('We could not find any data');
 				}
 
 				foreach ($bankList as $key => $status) {
@@ -41,6 +46,12 @@ class Fpx {
 		return Bank::all()->sortBy('name')->pluck('name', 'bank_id');
 	}
 
+	/**
+	 * Returns status of transaction
+	 *
+	 * @param string $reference_id reference order id
+	 * @return array
+	 */
 	public static function getTransactionStatus(string $reference_id) {
 
 		$authEnquiry = new AuthEnquiry;

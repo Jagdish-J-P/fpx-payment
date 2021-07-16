@@ -19,7 +19,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 
 	public const STATUS_SUCCESS = 'succeeded';
 	public const STATUS_FAILED = 'failed';
-	public const STATUS_PENDING = 'Pending';
+	public const STATUS_PENDING = 'pending';
 
 	public const STATUS_SUCCESS_CODE = '00';
 	public const STATUS_PENDING_CODE = '09';
@@ -58,7 +58,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 			if (App::environment('production') || Config::get('fpx.should_verify_response'))
 				$this->verifySign($this->checkSum, $this->format());
 
-			$this->initiated_from = $this->saveTransaction();
+			$this->response_format = $this->saveTransaction();
 
 			if ($this->debitResponseStatus == self::STATUS_SUCCESS_CODE) {
 				return [
@@ -66,7 +66,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment is successfull',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
-					'initiated_from' => $this->initiated_from,
+					'response_format' => $this->response_format,
 				];
 			} elseif ($this->debitResponseStatus == self::STATUS_PENDING_CODE) {
 				return [
@@ -74,7 +74,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment Transaction Pending',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
-					'initiated_from' => $this->initiated_from,
+					'response_format' => $this->response_format,
 				];
 			}
 
@@ -83,7 +83,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'message' => @Response::STATUS[$this->debitResponseStatus] ?? 'Payment Request Failed',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
-				'initiated_from' => $this->initiated_from,
+				'response_format' => $this->response_format,
 			];
 		} catch (InvalidCertificateException $e) {
 			return [
@@ -143,13 +143,14 @@ class AuthorizationConfirmation extends Message implements Contract {
 		$transaction = Transaction::where(['unique_id' => $this->id])->firstOrNew();
 
 		$transaction->reference_id = $this->reference;
-		$transaction->request_payload = $transaction->initiated_from = '';
+		$transaction->request_payload = $transaction->request_payload ?? '';
+		$transaction->response_format = $transaction->response_format ?? '';
 		$transaction->unique_id = $this->id;
 		$transaction->transaction_id = $this->foreignId;
 		$transaction->debit_auth_code = $this->debitResponseStatus;
 		$transaction->response_payload = $this->list()->toJson();
 		$transaction->save();
 
-		return $transaction->initiated_from;
+		return $transaction->response_format;
 	}
 }
