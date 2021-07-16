@@ -63,7 +63,7 @@ FPX_SELLER_ID=
 
 You can override the defaults by updating the config file.
 
-3. Run migration to add the banks table
+3. Run migration to add the banks and transactions table
 
 ```bash
 php artisan migrate
@@ -71,7 +71,7 @@ php artisan migrate
 
 ## Usage
 
-1. First run the following commands to seed the banks list.
+1. First run the following command to seed the banks list.
 
 ```bash
 php artisan fpx:banks
@@ -83,28 +83,30 @@ you should schedule the fpx:banks Artisan command to run daily:
 $schedule->command('fpx:banks')->daily();
 ```
 
-2. Add one the `x-fpx-pay` component with the following attributes
+2. Add one the `x-fpx-payment` component with the following attributes
 
 ```php
- <x-fpx-pay
+ <x-fpx-payment
 		:reference-id="$invoice->id"
 		:datetime="$invoice->created_at->format('Ymdhms')"
 		:amount="$invoice->total"
 		:customer-name="$company->name"
 		:customer-email="$company->owner->email"
-		product-description="Salary Invoice">
+		:product-description="Salary Invoice"
+		:class="css class name for styling button">
 ```
 
 During testing, you can use the `test-mode` attribute to override the provided amount to 'MYR 1.00'
 
 ```php
- <x-fpx-pay
+ <x-fpx-payment
 		:reference-id="$invoice->id"
 		:datetime="$invoice->created_at->format('Ymdhms')"
 		:amount="$invoice->total"
 		:customer-name="$company->name"
 		:customer-email="$company->owner->email"
-		product-description="Salary Invoice"
+		:product-description="Salary Invoice"
+		:class="css class name for styling button"
 		test-mode>
 ```
 
@@ -140,9 +142,110 @@ During testing, you can use the `test-mode` attribute to override the provided a
 	}
 ```
 
-You can visit <a href='http://app.test/fpx/initiate/payment'>http://app.test/fpx/csr/request</a> for the payment flow demo.
+4. Check Status of all pending transactions using command
 
-You can also overwrite `payment.blade.php` with your custom design to integrate with your details. but do not change `name` attribute of html controls and `action` URL of form.
+```bash
+php artisan fpx:payment-status
+```
+
+5. Check Status of specific transaction using command pass comma saperated order reference ids.
+
+```bash
+php artisan fpx:payment-status reference_id1,reference_id2,reference_id3
+```
+
+6. Check transaction status and Bank list from Controller
+
+```php
+
+use JagdishJP/FpxPayment/Fpx;
+
+/**
+ * Returns status of transaction
+ * 
+ * @param string $reference_id reference order id
+ * @return array
+ */
+$status = Fpx::getTransactionStatus($reference_id);
+
+
+/**
+ * returns collection of bank_id and name 
+ * 
+ * @param bool $getLatest (optional) pass true to get latest banks 
+ * @return \Illuminate\Support\Collection
+ */
+$banks = Fpx::getBankList(true);
+
+```
+## Web Integration
+
+You can visit <a href='http://app.test/fpx/initiate/payment'>http://app.test/fpx/initiate/payment</a> for the payment flow demo of web integration.
+
+## Mobile App Integration
+
+- Append `app` parameter in the URL to check the demo. [http://app.test/fpx/initiate/payment/app](http://app.test/fpx/initiate/payment/app) 
+- This will print JSON response after completion of transaction to integrate with mobile app.
+
+Follow these steps to integrate in mobile application.
+
+### Request Details
+Open [http://app.test/fpx/initiate/payment/app](http://app.test/fpx/initiate/payment/app) in web view with POST method and POST below parameters.
+
+```
+response_format = "JSON"
+reference_id = unique order reference id
+customer_name = name of the buyer/customer
+amount = amount to be charged
+customer_email = email id of customer
+remark = remarks for the transaction
+```
+
+### Response 
+You must use `response` field to display receipt. `fpx_response` is added if you need any extra details.
+
+`response.status` will be succeeded, failed or pending.
+
+```php
+{
+  "response": {
+    "status": "succeeded/failed/pending",
+    "message": "Payment is successfull",
+    "transaction_id": "",
+    "reference_id": "",
+    "amount": "",
+    "transaction_timestamp": "",
+    "buyer_bank_name": "",
+    "response_format": "JSON",
+  },
+  "fpx_response": {
+    "fpx_debitAuthCode": "",
+    "fpx_debitAuthNo": "",
+    "fpx_sellerExId": "",
+    "fpx_creditAuthNo": "",
+    "fpx_buyerName": "",
+    "fpx_buyerId": null,
+    "fpx_sellerTxnTime": "",
+    "fpx_sellerExOrderNo": "",
+    "fpx_makerName": "",
+    "fpx_buyerBankBranch": "",
+    "fpx_buyerBankId": "",
+    "fpx_msgToken": "",
+    "fpx_creditAuthCode": "",
+    "fpx_sellerId": "",
+    "fpx_fpxTxnTime": "",
+    "fpx_buyerIban": null,
+    "fpx_sellerOrderNo": "",
+    "fpx_txnAmount": "",
+    "fpx_fpxTxnId": "",
+    "fpx_checkSum": "",
+    "fpx_msgType": "",
+    "fpx_txnCurrency": "",
+  }
+}
+```
+
+You can also override `payment.blade.php` with your custom design to integrate with your layout. but do not change `name` attribute of html controls and `action` URL of form.
 
 ### Changelog
 
