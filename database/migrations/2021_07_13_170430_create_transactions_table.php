@@ -13,7 +13,7 @@ class CreateTransactionsTable extends Migration
 	 */
 	public function up()
 	{
-		Schema::create('transactions', function (Blueprint $table) {
+		Schema::create('fpx_transactions', function (Blueprint $table) {
 			$table->id();
 			$table->string('unique_id')->comment('Unique auto generated reference Id');
 			$table->string('reference_id')->comment('Unique Order no/Reference id');
@@ -33,6 +33,6 @@ class CreateTransactionsTable extends Migration
 	 */
 	public function down()
 	{
-		Schema::dropIfExists('transactions');
+		Schema::dropIfExists('fpx_transactions');
 	}
 }
