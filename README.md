@@ -46,17 +46,17 @@ FPX_SELLER_ID=
    Run openssl code to generate CSR. Submit this CSR to FPX service provider to get the Exchange Certificates.
 
 3. After generating your certificates add them to your app. By default, we look for the certificates inside the following directives. 
-	 Create `/certificates/uat` and `/certificates/prod` directories in `storage/app/public` directory and paste your certificates there.
+	 Create `/public/fpx/uat` and `/public/fpx/prod` directories in `storage/app/public` directory and paste your certificates there.
 
 ```php
 'certificates' => [
 	'uat' => [
 		'disk' => 'local', // S3 or Local. Don't put your certificate in public disk
-		'dir' => '/certificates/uat',
+		'dir' => '/public/fpx/uat',
 	],
 	'production' => [
 		'disk' => 'local', // S3 or Local. Don't put your certificate in public disk
-		'dir' => '/certificates/prod',
+		'dir' => '/public/fpx/prod',
 	]
 ],
 ```
