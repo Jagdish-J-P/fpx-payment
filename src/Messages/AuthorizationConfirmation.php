@@ -66,6 +66,9 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment is successfull',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
+					'amount' => $this->amount,
+					'transaction_timestamp' => $this->foreignTimestamp,
+					'buyer_bank_name' => $this->targetBankBranch,
 					'response_format' => $this->response_format,
 				];
 			} elseif ($this->debitResponseStatus == self::STATUS_PENDING_CODE) {
@@ -74,6 +77,9 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'message' => 'Payment Transaction Pending',
 					'transaction_id' => $this->foreignId,
 					'reference_id' => $this->reference,
+					'amount' => $this->amount,
+					'transaction_timestamp' => $this->foreignTimestamp,
+					'buyer_bank_name' => $this->targetBankBranch,
 					'response_format' => $this->response_format,
 				];
 			}
@@ -83,6 +89,9 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'message' => @Response::STATUS[$this->debitResponseStatus] ?? 'Payment Request Failed',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
+				'amount' => $this->amount,
+				'transaction_timestamp' => $this->foreignTimestamp,
+				'buyer_bank_name' => $this->targetBankBranch,
 				'response_format' => $this->response_format,
 			];
 		} catch (InvalidCertificateException $e) {
@@ -91,6 +100,10 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'message' => "Failed to verify the request origin",
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
+				'amount' => $this->amount,
+				'transaction_timestamp' => $this->foreignTimestamp,
+				'buyer_bank_name' => $this->targetBankBranch,
+				'response_format' => $this->response_format,
 			];
 		}
 	}
