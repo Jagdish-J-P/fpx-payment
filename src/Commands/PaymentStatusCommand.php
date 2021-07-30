@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
 use JagdishJP\FpxPayment\Messages\AuthEnquiry;
-use JagdishJP\FpxPayment\Models\Transaction;
+use JagdishJP\FpxPayment\Models\FpxTransaction;
 
 class PaymentStatusCommand extends Command {
 
@@ -43,10 +43,10 @@ class PaymentStatusCommand extends Command {
 		$reference_ids = $this->argument('reference_id');
 		if ($reference_ids) {
 			$reference_ids = explode(',', $reference_ids);
-			$reference_ids = Transaction::whereIn('reference_id', $reference_ids)->get('reference_id')->toArray();
+			$reference_ids = FpxTransaction::whereIn('reference_id', $reference_ids)->get('reference_id')->toArray();
 		}
 		else{
-			$reference_ids = Transaction::whereNull('debit_auth_code')->orWhere('debit_auth_code' , AuthEnquiry::STATUS_PENDING_CODE)->get('reference_id')->toArray();
+			$reference_ids = FpxTransaction::whereNull('debit_auth_code')->orWhere('debit_auth_code' , AuthEnquiry::STATUS_PENDING_CODE)->get('reference_id')->toArray();
 		}
 
 		if($reference_ids){

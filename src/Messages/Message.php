@@ -4,7 +4,7 @@ namespace JagdishJP\FpxPayment\Messages;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Config;
-use JagdishJP\FpxPayment\Models\Transaction;
+use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 
 class Message {
@@ -171,7 +171,7 @@ class Message {
 	public function generate_uuid() {
 		do {
 			$uuid = Str::uuid();
-		} while (Transaction::where("unique_id", $uuid)->first());
+		} while (FpxTransaction::where("unique_id", $uuid)->first());
 
 		return $uuid;
 	}

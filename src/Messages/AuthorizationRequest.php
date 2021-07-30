@@ -7,7 +7,7 @@ use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
-use JagdishJP\FpxPayment\Models\Transaction;
+use JagdishJP\FpxPayment\Models\FpxTransaction;
 
 class AuthorizationRequest extends Message implements Contract
 {
@@ -121,7 +121,7 @@ class AuthorizationRequest extends Message implements Contract
 	public function saveTransaction()
 	{
 
-		$transaction = new Transaction;
+		$transaction = new FpxTransaction;
 		$transaction->unique_id = $this->id;
 		$transaction->reference_id = $this->reference;
 		$transaction->response_format = $this->responseFormat;

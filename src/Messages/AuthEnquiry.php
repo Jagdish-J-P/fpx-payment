@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Validator;
 use JagdishJP\FpxPayment\Constant\Response;
-use JagdishJP\FpxPayment\Models\Transaction;
+use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 
@@ -60,7 +60,7 @@ class AuthEnquiry extends Message implements Contract
 			'response_format' => 'nullable',
 		])->validate();
 
-		$tranction = Transaction::where('reference_id', $data['reference_id'])->firstOrFail();
+		$tranction = FpxTransaction::where('reference_id', $data['reference_id'])->firstOrFail();
 
 		$data = Json::decode($tranction->request_payload, true);
 
@@ -270,7 +270,7 @@ class AuthEnquiry extends Message implements Contract
 	 */
 	public function saveTransaction()
 	{
-		$transaction = Transaction::where(['unique_id' => $this->id])->first();
+		$transaction = FpxTransaction::where(['unique_id' => $this->id])->first();
 
 		$transaction->transaction_id = $this->foreignId;
 		$transaction->debit_auth_code = $this->debitResponseStatus;

@@ -5,7 +5,7 @@ namespace JagdishJP\FpxPayment\Messages;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
 use JagdishJP\FpxPayment\Constant\Response;
-use JagdishJP\FpxPayment\Models\Transaction;
+use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
 
@@ -153,7 +153,7 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 * @return string initiated from
 	 */
 	public function saveTransaction() {
-		$transaction = Transaction::where(['unique_id' => $this->id])->firstOrNew();
+		$transaction = FpxTransaction::where(['unique_id' => $this->id])->firstOrNew();
 
 		$transaction->reference_id = $this->reference;
 		$transaction->request_payload = $transaction->request_payload ?? '';
