@@ -65,7 +65,7 @@ class BankEnquiry extends Message implements Contract {
 			'form_params' => $dataList->toArray()
 		]);
 
-		return Str::replace("\n", '', $response->getBody());
+		return Str::replaceArray("\n", [''], $response->getBody());
 	}
 
 	/**
