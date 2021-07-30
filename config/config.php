@@ -86,7 +86,7 @@ return [
 	 * Certificate Paths
 	 *
 	 */
-	'certificate' => [
+	'certificates' => [
 		'uat' => [
 			'disk' => 'local', // S3 or Local. Don't put your certificate in public disk
 			'dir' => '/public/fpx/uat',
