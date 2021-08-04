@@ -81,7 +81,6 @@ class FpxPaymentServiceProvider extends ServiceProvider
 
 			$this->publishes([
 				__DIR__ . '/../resources/views/payment.blade.php' => resource_path('views/vendor/fpx-payment/payment.blade.php'),
-				__DIR__ . '/../resources/views/payment_status.blade.php' => resource_path('views/vendor/fpx-payment/payment_status.blade.php'),
 			], 'fpx-views');
 
 			$this->commands([
