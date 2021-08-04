@@ -9,7 +9,8 @@ use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
 use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
 
-class AuthorizationConfirmation extends Message implements Contract {
+class AuthorizationConfirmation extends Message implements Contract
+{
 
 
 	/**
@@ -30,7 +31,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 * @param array $options
 	 * @return mixed
 	 */
-	public function handle($options) {
+	public function handle($options)
+	{
 		$this->targetBankBranch = @$options['fpx_buyerBankBranch'];
 		$this->targetBankId = @$options['fpx_buyerBankId'];
 		$this->buyerIBAN = @$options['fpx_buyerIban'];
@@ -58,7 +60,9 @@ class AuthorizationConfirmation extends Message implements Contract {
 			if (App::environment('production') || Config::get('fpx.should_verify_response'))
 				$this->verifySign($this->checkSum, $this->format());
 
-			$this->response_format = $this->saveTransaction();
+			$transaction = $this->saveTransaction();
+			$this->responseFormat = $transaction->response_format;
+			$this->additionalParams = $transaction->additional_params;
 
 			if ($this->debitResponseStatus == self::STATUS_SUCCESS_CODE) {
 				return [
@@ -69,9 +73,12 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'amount' => $this->amount,
 					'transaction_timestamp' => $this->foreignTimestamp,
 					'buyer_bank_name' => $this->targetBankBranch,
-					'response_format' => $this->response_format,
+					'response_format' => $this->responseFormat,
+					'additional_params' => $this->additionalParams,
 				];
-			} elseif ($this->debitResponseStatus == self::STATUS_PENDING_CODE) {
+			}
+
+			if ($this->debitResponseStatus == self::STATUS_PENDING_CODE) {
 				return [
 					'status' => self::STATUS_PENDING,
 					'message' => 'Payment Transaction Pending',
@@ -80,7 +87,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 					'amount' => $this->amount,
 					'transaction_timestamp' => $this->foreignTimestamp,
 					'buyer_bank_name' => $this->targetBankBranch,
-					'response_format' => $this->response_format,
+					'additional_params' => $this->additionalParams,
+					'response_format' => $this->responseFormat,
 				];
 			}
 
@@ -92,7 +100,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'amount' => $this->amount,
 				'transaction_timestamp' => $this->foreignTimestamp,
 				'buyer_bank_name' => $this->targetBankBranch,
-				'response_format' => $this->response_format,
+				'additional_params' => $this->additionalParams,
+				'response_format' => $this->responseFormat,
 			];
 		} catch (InvalidCertificateException $e) {
 			return [
@@ -103,7 +112,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 				'amount' => $this->amount,
 				'transaction_timestamp' => $this->foreignTimestamp,
 				'buyer_bank_name' => $this->targetBankBranch,
-				'response_format' => $this->response_format,
+				'additional_params' => $this->additionalParams,
+				'response_format' => $this->responseFormat,
 			];
 		}
 	}
@@ -112,7 +122,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 * Format data for checksum
 	 * @return string
 	 */
-	public function format() {
+	public function format()
+	{
 		return $this->list()->join('|');
 	}
 
@@ -121,7 +132,8 @@ class AuthorizationConfirmation extends Message implements Contract {
 	 *
 	 * @return collection
 	 */
-	public function list() {
+	public function list()
+	{
 		return collect([
 			'fpx_buyerBankBranch' => $this->targetBankBranch ?? '',
 			'fpx_buyerBankId' => $this->targetBankId ?? '',
@@ -150,20 +162,22 @@ class AuthorizationConfirmation extends Message implements Contract {
 	/**
 	 * Save response to transaction
 	 *
-	 * @return string initiated from
+	 * @return FpxTransaction
 	 */
-	public function saveTransaction() {
+	public function saveTransaction(): FpxTransaction
+	{
 		$transaction = FpxTransaction::where(['unique_id' => $this->id])->firstOrNew();
 
 		$transaction->reference_id = $this->reference;
 		$transaction->request_payload = $transaction->request_payload ?? '';
 		$transaction->response_format = $transaction->response_format ?? '';
+		$transaction->additional_params = $transaction->additional_params ?? '';
 		$transaction->unique_id = $this->id;
 		$transaction->transaction_id = $this->foreignId;
 		$transaction->debit_auth_code = $this->debitResponseStatus;
 		$transaction->response_payload = $this->list()->toJson();
 		$transaction->save();
 
-		return $transaction->response_format;
+		return $transaction;
 	}
 }

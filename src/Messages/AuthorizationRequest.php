@@ -49,6 +49,7 @@ class AuthorizationRequest extends Message implements Contract
 			'currency' => 'nullable',
 			'response_format' => 'nullable',
 			'remark' => 'nullable',
+			'additional_params' => 'nullable',
 			'amount' => 'required',
 			'customer_name' => 'required',
 			'customer_email' => 'required',
@@ -68,6 +69,7 @@ class AuthorizationRequest extends Message implements Contract
 		$this->targetBankId = $data['bank_id'];
 		$this->checkSum = $this->getCheckSum($this->format());
 		$this->responseFormat = $data['response_format'] ?? 'HTML';
+		$this->additionalParams = $data['additional_params'];
 
 		$this->saveTransaction();
 
@@ -125,6 +127,7 @@ class AuthorizationRequest extends Message implements Contract
 		$transaction->unique_id = $this->id;
 		$transaction->reference_id = $this->reference;
 		$transaction->response_format = $this->responseFormat;
+		$transaction->additional_params = $this->additionalParams;
 		$transaction->request_payload = $this->list()->toJson();
 		$transaction->save();
 	}

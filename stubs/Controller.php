@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FPX;
 
 use JagdishJP\FpxPayment\Http\Requests\AuthorizationConfirmation as Request;
 use App\Http\Controllers\Controller as BaseController;
+use JagdishJP\FpxPayment\Fpx;
 
 class Controller extends BaseController {
 
@@ -29,5 +30,17 @@ class Controller extends BaseController {
 		// Update your order status
 
 		return 'OK';
+	}
+
+	/**
+	 * @param Request $request
+	 * @return string
+	 */
+	public function initiatePayment(Request $request, $iniated_from = 'web', $test = '') {
+
+		$banks = Fpx::getBankList(true);
+		$response_format =	$iniated_from == 'app' ? 'JSON' : 'HTML';
+
+		return view('fpx-payment::payment', compact('banks', 'response_format', 'test', 'request'));
 	}
 }

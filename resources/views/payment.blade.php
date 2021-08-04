@@ -25,7 +25,8 @@
         <form class="needs-validation" novalidate method="POST" action="{{ route('fpx.payment.auth.request') }}">
             @csrf
             <input type="hidden" name="response_format" value="{{ $response_format }}" />
-            <input type="hidden" name="reference_id" value="{{ $reference_id ?? uniqid() }}" />
+            <input type="hidden" name="reference_id" value="{{ $request->reference_id ?? uniqid() }}" />
+            <input type="hidden" name="additional_params" value="{{ $request->additional_params ?? '' }}" />
 
             {{ implode(',', $errors->all()) }}
             <div class="row">
@@ -97,16 +98,6 @@
                                 Please enter a valid email address.
                             </div>
                         </div>
-
-                        {{-- <div class="mb-3">
-                            <label for="customer_telephone">Telephone</label>
-                            <input type="tel " class="form-control" id="customer_telephone"
-                            name="customer_telephone" value="{{ $test ? '9999999999' : '' }}"
-                            placeholder="01XXXXXXXX" required>
-                            <div class="invalid-feedback">
-                                Please enter a valid telephone no.
-                            </div>
-                        </div> --}}
 
                         <div class="mb-3">
                             <label for="remark">Remark</label>

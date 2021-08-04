@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use JagdishJP\FpxPayment\Commands\PaymentStatusCommand;
 
-class FpxPaymentServiceProvider extends ServiceProvider {
+class FpxPaymentServiceProvider extends ServiceProvider
+{
 	/**
 	 * Bootstrap the application services.
 	 */
-	public function boot() {
+	public function boot()
+	{
 		$this->configureRoutes();
 
 		$this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
@@ -32,24 +34,38 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 	/**
 	 * Register the application services.
 	 */
-	public function register() {
+	public function register()
+	{
 		// Automatically apply the package configuration
 		$this->mergeConfigFrom(__DIR__ . '/../config/config.php', 'fpx');
 	}
 
-	public function configureComponents() {
+	public function configureComponents()
+	{
 		Blade::component('fpx-payment::components.pay', 'fpx-payment');
 	}
 
-	public function configureRoutes() {
+	public function configureRoutes()
+	{
 		Route::group([
 			'middleware' => Config::get('fpx.middleware')
 		], function () {
 			$this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
 		});
+
+		Route::prefix('api')->group(
+			function () {
+				Route::group([
+					'middleware' => 'api'
+				], function () {
+					$this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+				});
+			}
+		);
 	}
 
-	public function configurePublish() {
+	public function configurePublish()
+	{
 		if ($this->app->runningInConsole()) {
 			$this->publishes([
 				__DIR__ . '/../config/config.php' => config_path('fpx.php'),
@@ -76,7 +92,8 @@ class FpxPaymentServiceProvider extends ServiceProvider {
 		}
 	}
 
-	public function registerEvents() {
+	public function registerEvents()
+	{
 		// Event::listen(
 		// 	PodcastProcessed::class,
 		// 	[SendPodcastNotification::class, 'handle']

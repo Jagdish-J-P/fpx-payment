@@ -63,7 +63,7 @@ FPX_SELLER_ID=
 
 You can override the defaults by updating the config file.
 
-3. Run migration to add the banks and transactions table
+3. Run migration to add the banks and fpx_transactions table
 
 ```bash
 php artisan migrate
@@ -178,6 +178,13 @@ $status = Fpx::getTransactionStatus($reference_id);
 $banks = Fpx::getBankList(true);
 
 ```
+
+7. API for transaction status 
+
+```
+http://app.test/api/fpx/transaction/status/$reference_id
+```
+
 ## Web Integration
 
 You can visit <a href='http://app.test/fpx/initiate/payment'>http://app.test/fpx/initiate/payment</a> for the payment flow demo of web integration.
@@ -199,6 +206,7 @@ customer_name = name of the buyer/customer
 amount = amount to be charged
 customer_email = email id of customer
 remark = remarks for the transaction
+additional_params = any additional parameters you want to pass
 ```
 
 ### Response 
@@ -217,6 +225,7 @@ You must use `response` field to display receipt. `fpx_response` is added if you
     "transaction_timestamp": "",
     "buyer_bank_name": "",
     "response_format": "JSON",
+    "additional_params": "type=123"
   },
   "fpx_response": {
     "fpx_debitAuthCode": "",

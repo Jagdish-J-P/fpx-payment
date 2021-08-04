@@ -65,6 +65,7 @@ class PaymentStatusCommand extends Command {
 					$responseData = $handler->parseResponse($token);
 
 					$bar->advance();
+
 					if ($responseData === false) {
 						$status[] = [
 							'status' => 'failed',
@@ -75,6 +76,7 @@ class PaymentStatusCommand extends Command {
 						continue;
 					}
 
+					$responseData['additional_params'] = $row['additional_params'];
 					$status[] = $responseData;
 				}
 
@@ -97,7 +99,6 @@ class PaymentStatusCommand extends Command {
 				logger("Transaction Status", [
 					'message' => $e->getMessage(),
 				]);
-
 			}
 		}
 		else{

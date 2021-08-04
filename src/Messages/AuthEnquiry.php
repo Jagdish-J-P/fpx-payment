@@ -12,6 +12,7 @@ use JagdishJP\FpxPayment\Constant\Response;
 use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthEnquiry extends Message implements Contract
 {
@@ -55,30 +56,36 @@ class AuthEnquiry extends Message implements Contract
 	 */
 	public function handle($options)
 	{
+
 		$data = Validator::make($options, [
 			'reference_id' => 'required',
 			'response_format' => 'nullable',
 		])->validate();
 
-		$tranction = FpxTransaction::where('reference_id', $data['reference_id'])->firstOrFail();
+		try {
+			$tranction = FpxTransaction::where('reference_id', $data['reference_id'])->first();
 
-		$data = Json::decode($tranction->request_payload, true);
+			$data = json_decode($tranction->request_payload, true);
 
-		$this->type = self::CODE;
-		$this->flow = $data['flow'];
-		$this->reference = $data['reference'];
-		$this->timestamp = $data['timestamp'];
-		$this->currency = $data['currency'];
-		$this->productDescription = $data['productDescription'];
-		$this->amount = $data['amount'];
-		$this->buyerEmail = $data['buyerEmail'];
-		$this->buyerName = $data['buyerName'];
-		$this->targetBankId = $data['buyerId'];
-		$this->id = $data['id'];
-		$this->checkSum = $this->getCheckSum($this->format());
-		$this->responseFormat = $data['response_format'] ?? 'HTML';
+			$this->type = self::CODE;
+			$this->flow = $data['flow'];
+			$this->reference = $data['reference'];
+			$this->timestamp = $data['timestamp'];
+			$this->currency = $data['currency'];
+			$this->productDescription = $data['productDescription'];
+			$this->amount = $data['amount'];
+			$this->buyerEmail = $data['buyerEmail'];
+			$this->buyerName = $data['buyerName'];
+			$this->targetBankId = $data['buyerId'];
+			$this->id = $data['id'];
+			$this->checkSum = $this->getCheckSum($this->format());
+			$this->responseFormat = $data['response_format'] ?? 'HTML';
+			$this->additionalParams = $tranction->additional_params;
 
-		return $this;
+			return $this;
+		} catch (ModelNotFoundException $e) {
+			return ['status' => 'failed', 'message' => 'Invalid reference Id'];
+		}
 	}
 
 	/**
@@ -180,7 +187,10 @@ class AuthEnquiry extends Message implements Contract
 		if (App::environment('production') || Config::get('fpx.should_verify_response'))
 			$this->verifySign($this->checksum, $this->responseFormat());
 
-		$this->response_format = $this->saveTransaction();
+		$transaction = $this->saveTransaction();
+
+		$this->responseFormat = $transaction->response_format;
+		$this->additionalParams = $transaction->additional_params;
 
 		if ($this->debitResponseStatus == self::STATUS_SUCCESS_CODE) {
 			return [
@@ -188,7 +198,11 @@ class AuthEnquiry extends Message implements Contract
 				'message' => 'Payment is successfull',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
-				'response_format' => $this->response_format,
+				'amount' => $this->amount,
+				'transaction_timestamp' => $this->foreignTimestamp,
+				'buyer_bank_name' => $this->targetBankBranch,
+				'response_format' => $this->responseFormat,
+				'additional_params' => $this->additionalParams,
 			];
 		}
 
@@ -198,7 +212,11 @@ class AuthEnquiry extends Message implements Contract
 				'message' => 'Payment Transaction Pending',
 				'transaction_id' => $this->foreignId,
 				'reference_id' => $this->reference,
-				'response_format' => $this->response_format,
+				'amount' => $this->amount,
+				'transaction_timestamp' => $this->foreignTimestamp,
+				'buyer_bank_name' => $this->targetBankBranch,
+				'response_format' => $this->responseFormat,
+				'additional_params' => $this->additionalParams,
 			];
 		}
 
@@ -207,7 +225,11 @@ class AuthEnquiry extends Message implements Contract
 			'message' => @Response::STATUS[$this->debitResponseStatus] ?? 'Payment Request Failed',
 			'transaction_id' => $this->foreignId,
 			'reference_id' => $this->reference,
-			'response_format' => $this->response_format,
+			'amount' => $this->amount,
+			'transaction_timestamp' => $this->foreignTimestamp,
+			'buyer_bank_name' => $this->targetBankBranch,
+			'response_format' => $this->responseFormat,
+			'additional_params' => $this->additionalParams,
 		];
 	}
 
@@ -266,9 +288,9 @@ class AuthEnquiry extends Message implements Contract
 	/**
 	 * Save response to transaction
 	 *
-	 * @return string initiated from
+	 * @return FpxTransaction
 	 */
-	public function saveTransaction()
+	public function saveTransaction() : FpxTransaction
 	{
 		$transaction = FpxTransaction::where(['unique_id' => $this->id])->first();
 
@@ -277,6 +299,6 @@ class AuthEnquiry extends Message implements Contract
 		$transaction->response_payload = $this->responseList()->toJson();
 		$transaction->save();
 
-		return $transaction->response_format;
+		return $transaction;
 	}
 }

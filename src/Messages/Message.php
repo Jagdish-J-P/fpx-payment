@@ -157,6 +157,11 @@ class Message {
 	 */
 	protected $responseFormat;
 
+	/**
+	 * Stores additional parameters
+	 */
+	protected $additionalParams;
+
 	public function __construct() {
 
 		$this->id = $this->generate_uuid();
