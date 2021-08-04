@@ -4,7 +4,7 @@ namespace JagdishJP\FpxPayment\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
+use JagdishJP\FpxPayment\Fpx;
 use JagdishJP\FpxPayment\Messages\AuthEnquiry;
 use JagdishJP\FpxPayment\Models\FpxTransaction;
 
@@ -54,52 +54,33 @@ class PaymentStatusCommand extends Command {
 				$bar = $this->output->createProgressBar(count($reference_ids));
 				$bar->start();
 				foreach ($reference_ids as $row) {
-					$handler = new AuthEnquiry;
-					$handler->handle(['reference_id' => $row['reference_id']]);
-
-					$dataList = $handler->getData();
-					$response = $handler->connect($dataList);
-
-					$token = strtok($response, "&");
-
-					$responseData = $handler->parseResponse($token);
-
-					$bar->advance();
-
-					if ($responseData === false) {
-						$status[] = [
-							'status' => 'failed',
-							'message' => 'We could not find any data',
-							'transaction_id' => null,
-							'reference_id' => $row['reference_id'],
-						];
-						continue;
-					}
-
-					$responseData['additional_params'] = $row['additional_params'];
-					$status[] = $responseData;
+					$status[] = Fpx::getTransactionStatus($row['reference_id']);
 				}
-
-				$this->newLine();
-				$this->newLine();
-
-				$this->table(collect(Arr::first($status))->keys(), $status);
-				$this->newLine();
-
-				$bar->finish();
-			} catch (InvalidCertificateException $e) {
-				return [
+			} catch (\Exception $e) {
+				$status[] = [
 					'status' => 'failed',
-					'message' => "Failed to verify the request origin",
+					'message' => $e->getMessage(),
 					'transaction_id' => null,
 					'reference_id' => $row['reference_id'],
+					'amount' => null,
+					'transaction_timestamp' => null,
+					'buyer_bank_name' => null,
+					'response_format' => null,
+					'additional_params' => null,
 				];
-			} catch (\Exception $e) {
-				$this->error($e->getMessage());
+
 				logger("Transaction Status", [
 					'message' => $e->getMessage(),
 				]);
 			}
+			$bar->finish();
+			$this->newLine();
+			$this->newLine();
+
+			$this->table(collect(Arr::first($status))->keys(), $status);
+			$this->newLine();
+
+
 		}
 		else{
 			$this->error("There is no Pending transactions.");

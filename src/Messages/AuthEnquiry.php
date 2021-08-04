@@ -12,7 +12,6 @@ use JagdishJP\FpxPayment\Constant\Response;
 use JagdishJP\FpxPayment\Models\FpxTransaction;
 use JagdishJP\FpxPayment\Traits\VerifyCertificate;
 use JagdishJP\FpxPayment\Contracts\Message as Contract;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthEnquiry extends Message implements Contract
 {
@@ -62,30 +61,26 @@ class AuthEnquiry extends Message implements Contract
 			'response_format' => 'nullable',
 		])->validate();
 
-		try {
-			$tranction = FpxTransaction::where('reference_id', $data['reference_id'])->first();
+		$tranction = FpxTransaction::where('reference_id', $data['reference_id'])->firstOrfail();
 
-			$data = json_decode($tranction->request_payload, true);
+		$data = json_decode($tranction->request_payload, true);
 
-			$this->type = self::CODE;
-			$this->flow = $data['flow'];
-			$this->reference = $data['reference'];
-			$this->timestamp = $data['timestamp'];
-			$this->currency = $data['currency'];
-			$this->productDescription = $data['productDescription'];
-			$this->amount = $data['amount'];
-			$this->buyerEmail = $data['buyerEmail'];
-			$this->buyerName = $data['buyerName'];
-			$this->targetBankId = $data['buyerId'];
-			$this->id = $data['id'];
-			$this->checkSum = $this->getCheckSum($this->format());
-			$this->responseFormat = $data['response_format'] ?? 'HTML';
-			$this->additionalParams = $tranction->additional_params;
+		$this->type = self::CODE;
+		$this->flow = $data['flow'];
+		$this->reference = $data['reference'];
+		$this->timestamp = $data['timestamp'];
+		$this->currency = $data['currency'];
+		$this->productDescription = $data['productDescription'];
+		$this->amount = $data['amount'];
+		$this->buyerEmail = $data['buyerEmail'];
+		$this->buyerName = $data['buyerName'];
+		$this->targetBankId = $data['buyerId'];
+		$this->id = $data['id'];
+		$this->checkSum = $this->getCheckSum($this->format());
+		$this->responseFormat = $data['response_format'] ?? 'HTML';
+		$this->additionalParams = $tranction->additional_params;
 
-			return $this;
-		} catch (ModelNotFoundException $e) {
-			return ['status' => 'failed', 'message' => 'Invalid reference Id'];
-		}
+		return $this;
 	}
 
 	/**
@@ -290,7 +285,7 @@ class AuthEnquiry extends Message implements Contract
 	 *
 	 * @return FpxTransaction
 	 */
-	public function saveTransaction() : FpxTransaction
+	public function saveTransaction(): FpxTransaction
 	{
 		$transaction = FpxTransaction::where(['unique_id' => $this->id])->first();
 

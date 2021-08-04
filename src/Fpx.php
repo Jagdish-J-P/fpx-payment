@@ -6,8 +6,11 @@ use Exception;
 use JagdishJP\FpxPayment\Messages\AuthEnquiry;
 use JagdishJP\FpxPayment\Messages\BankEnquiry;
 use JagdishJP\FpxPayment\Models\Bank;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use JagdishJP\FpxPayment\Exceptions\InvalidCertificateException;
 
-class Fpx {
+class Fpx
+{
 
 	/**
 	 * returns collection of bank_id and name
@@ -15,13 +18,14 @@ class Fpx {
 	 * @param bool $getLatest (optional) pass true to get latest banks
 	 * @return \Illuminate\Support\Collection
 	 */
-	public static function getBankList(bool $getLatest = false) {
+	public static function getBankList(bool $getLatest = false)
+	{
 		if ($getLatest) {
 			try {
 				$bankEnquiry = new BankEnquiry;
 				$dataList = $bankEnquiry->getData();
 				$response = $bankEnquiry->connect($dataList);
-				$token = strtok($response,"&");
+				$token = strtok($response, "&");
 				$bankList = $bankEnquiry->parseBanksList($token);
 
 				if ($bankList === false) {
@@ -52,27 +56,73 @@ class Fpx {
 	 * @param string $reference_id reference order id
 	 * @return array
 	 */
-	public static function getTransactionStatus(string $reference_id) {
+	public static function getTransactionStatus(string $reference_id)
+	{
+		try {
+			$authEnquiry = new AuthEnquiry;
+			$authEnquiry->handle(compact('reference_id'));
 
-		$authEnquiry = new AuthEnquiry;
-		$authEnquiry->handle(compact('reference_id'));
+			$dataList = $authEnquiry->getData();
+			$response = $authEnquiry->connect($dataList);
 
-		$dataList = $authEnquiry->getData();
-		$response = $authEnquiry->connect($dataList);
+			$token = strtok($response, "&");
 
-		$token = strtok($response, "&");
+			$responseData = $authEnquiry->parseResponse($token);
 
-		$responseData = $authEnquiry->parseResponse($token);
-
-		if ($responseData === false) {
+			if ($responseData === false) {
+				return [
+					'status' => 'failed',
+					'message' => 'We could not find any data',
+					'transaction_id' => null,
+					'reference_id' => $reference_id,
+					'amount' => null,
+					'transaction_timestamp' => null,
+					'buyer_bank_name' => null,
+					'response_format' => null,
+					'additional_params' => null,
+				];
+			}
+			return $responseData;
+		} catch (ModelNotFoundException $e) {
 			return [
 				'status' => 'failed',
-				'message' => 'We could not find any data',
+				'message' => 'Invalid reference Id',
 				'transaction_id' => null,
 				'reference_id' => $reference_id,
+				'amount' => null,
+				'transaction_timestamp' => null,
+				'buyer_bank_name' => null,
+				'response_format' => null,
+				'additional_params' => null,
 			];
-		}
+		} catch (InvalidCertificateException $e) {
+			return  [
+				'status' => 'failed',
+				'message' => "Failed to verify the request origin",
+				'transaction_id' => null,
+				'reference_id' => $reference_id,
+				'amount' => null,
+				'transaction_timestamp' => null,
+				'buyer_bank_name' => null,
+				'response_format' => null,
+				'additional_params' => null,
+			];
+		} catch (\Exception $e) {
+			return [
+				'status' => 'failed',
+				'message' => $e->getMessage(),
+				'transaction_id' => null,
+				'reference_id' => $reference_id,
+				'amount' => null,
+				'transaction_timestamp' => null,
+				'buyer_bank_name' => null,
+				'response_format' => null,
+				'additional_params' => null,
+			];
 
-		return $responseData;
+			logger("Transaction Status", [
+				'message' => $e->getMessage(),
+			]);
+		}
 	}
 }
