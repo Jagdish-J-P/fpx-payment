@@ -36,6 +36,11 @@ class Fpx
 					$bankId = explode(" - ", $key)[1];
 					$bank = $bankEnquiry->getBanks($bankId);
 
+					if (empty($bank)) {
+						logger("Bank Not Found: ", [$bankId]);
+						continue;
+					}
+
 					Bank::updateOrCreate(['bank_id' => $bankId], [
 						'status' => $status == 'A' ? 'Online' : 'Offline',
 						'name' => $bank['name'],

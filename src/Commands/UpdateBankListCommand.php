@@ -6,7 +6,8 @@ use JagdishJP\FpxPayment\Messages\BankEnquiry;
 use JagdishJP\FpxPayment\Models\Bank;
 use Illuminate\Console\Command;
 
-class UpdateBankListCommand extends Command {
+class UpdateBankListCommand extends Command
+{
 	/**
 	 * The name and signature of the console command.
 	 *
@@ -26,7 +27,8 @@ class UpdateBankListCommand extends Command {
 	 *
 	 * @return void
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 		parent::__construct();
 	}
 
@@ -35,7 +37,8 @@ class UpdateBankListCommand extends Command {
 	 *
 	 * @return int
 	 */
-	public function handle() {
+	public function handle()
+	{
 		$handler = new BankEnquiry;
 
 		$dataList = $handler->getData();
@@ -56,7 +59,10 @@ class UpdateBankListCommand extends Command {
 			foreach ($bankList as $key => $status) {
 				$bankId = explode(" - ", $key)[1];
 				$bank = $handler->getBanks($bankId);
-
+				if (empty($bank)) {
+					logger("Bank Not Found: ", [$bankId]);
+					continue;
+				}
 				Bank::updateOrCreate(['bank_id' => $bankId], [
 					'status' => $status == 'A' ? 'Online' : 'Offline',
 					'name' => $bank['name'],
