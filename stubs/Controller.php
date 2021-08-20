@@ -42,8 +42,12 @@ class Controller extends BaseController
 	 */
 	public function initiatePayment(Request $request, $iniated_from = 'web', $test = '')
 	{
+		$day = 1;
+		$hour = 24;
+		$minute = 60;
+		$second = 60;
 
-		$banks = Cache::remember('banks', 1 * 24 * 60 * 60, function () {
+		$banks = Cache::remember('banks', $day * $hour * $minute * $second, function () {
 			return Fpx::getBankList(true);
 		});
 
