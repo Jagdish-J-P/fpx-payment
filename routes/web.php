@@ -25,6 +25,7 @@ Route::get(
 	'fpx/csr/request',
 	function () {
 
-	$countries = CountryListFacade::getList('en');
-	return view('fpx-payment::csr_request', compact('countries'));
-})->name('fpx.csr.request');
+		$countries = CountryListFacade::getList('en');
+		return view('fpx-payment::csr_request', compact('countries'));
+	}
+)->name('fpx.csr.request');

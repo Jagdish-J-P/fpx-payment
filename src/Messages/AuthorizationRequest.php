@@ -42,19 +42,27 @@ class AuthorizationRequest extends Message implements Contract
 	 */
 	public function handle($options)
 	{
-		$data = Validator::make($options, [
-			/* 'flow' => ['required', Rule::in([Type::FLOW_B2C])], */
-			'reference_id' => 'required',
-			'datetime' => 'nullable',
-			'currency' => 'nullable',
-			'response_format' => 'nullable',
-			'remark' => 'nullable',
-			'additional_params' => 'nullable',
-			'amount' => 'required',
-			'customer_name' => 'required',
-			'customer_email' => 'required',
-			'bank_id' => 'required',
-		])->validate();
+		$data = Validator::make(
+			$options,
+			[
+				'reference_id' => 'required',
+				'datetime' => 'nullable',
+				'currency' => 'nullable',
+				'response_format' => 'nullable',
+				'remark' => 'nullable',
+				'additional_params' => 'nullable',
+				'amount' => 'required|integer|between:' . Config::get('fpx.min_amount', '1') . ',' . Config::get('fpx.max_amount', '30000'),
+				'customer_name' => 'required',
+				'customer_email' => 'required',
+				'bank_id' => 'required',
+			],
+			[
+				'reference_id.required' => 'Order Reference Id is required',
+				'customer_name.required' => 'Buyer Name is required',
+				'customer_email.required' => 'Email is required',
+				'bank_id.required' => 'please select bank for the payment',
+			],
+		)->validate();
 
 
 		$this->type = self::CODE;

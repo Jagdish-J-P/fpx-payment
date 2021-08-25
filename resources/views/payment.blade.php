@@ -27,15 +27,20 @@
             <input type="hidden" name="response_format" value="{{ $response_format }}" />
             <input type="hidden" name="reference_id" value="{{ $request->reference_id ?? uniqid() }}" />
             <input type="hidden" name="additional_params" value="{{ $request->additional_params ?? '' }}" />
-
-            {{ implode(',', $errors->all()) }}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    {{ implode(',', $errors->all()) }}
+                </div>
+            @endif
             <div class="row">
                 <div class="col-md-4 order-md-2 mb-4">
                     <div class="border p-3 mb-3 rounded">
                         <h4>Payment Details</h4>
                         <p class="mb-3 pt-1">Please select your payment details.</p>
 
-                        <div class="alert alert-info">Minimum RM 1.00 and maximum RM 30,000.00</div>
+                        <div class="alert alert-info">Minimum RM
+                            {{ number_format(Config::get('fpx.min_amount', '1'), 2) }} and maximum RM
+                            {{ number_format(Config::get('fpx.max_amount', '30000'), 2) }}</div>
 
                         <div class="row mb-3">
                             <div class="col-lg-6 col-sm-12">

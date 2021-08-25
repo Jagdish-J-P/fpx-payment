@@ -50,6 +50,16 @@ return [
 	'middleware' => ['web'],
 
 	/**
+	 * Minimum acceptable amount
+	 */
+	'min_amount' => 1,
+
+	/**
+	 * Maximum acceptable amount
+	 */
+	'max_amount' => 30000,
+
+	/**
 	 * FPX Version
 	 *
 	 * Ensure that you are using the latest version by checking FPX documentation at
