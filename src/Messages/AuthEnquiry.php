@@ -180,7 +180,7 @@ class AuthEnquiry extends Message implements Contract
 		$this->checkSum = $response_value['fpx_checkSum'];
 
 		if (App::environment('production') || Config::get('fpx.should_verify_response'))
-			$this->verifySign($this->checksum, $this->responseFormat());
+			$this->verifySign($this->checkSum, $this->responseFormat());
 
 		$transaction = $this->saveTransaction();
 
