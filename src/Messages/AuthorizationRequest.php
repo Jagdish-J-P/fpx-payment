@@ -55,12 +55,14 @@ class AuthorizationRequest extends Message implements Contract
 				'customer_name' => 'required',
 				'customer_email' => 'required',
 				'bank_id' => 'required',
+				'flow' => 'required|in:01,02,03',
 			],
 			[
-				'reference_id.required' => 'Order Reference Id is required',
-				'customer_name.required' => 'Buyer Name is required',
-				'customer_email.required' => 'Email is required',
-				'bank_id.required' => 'please select bank for the payment',
+				'reference_id.required' => 'Order Reference Id is required.',
+				'customer_name.required' => 'Buyer Name is required.',
+				'customer_email.required' => 'Email is required.',
+				'bank_id.required' => 'Please select bank for the payment.',
+				'flow.required' => 'Please select bank type.'
 			],
 		)->validate();
 
