@@ -66,7 +66,7 @@ class AuthorizationRequest extends Message implements Contract
 
 
 		$this->type = self::CODE;
-		//	$this->flow = $data['flow'];
+		$this->flow = $data['flow'];
 		$this->reference = $data['reference_id'];
 		$this->timestamp = $data['datetime'] ?? date("YmdHis");
 		$this->currency = $data['currency'] ?? $this->currency;
