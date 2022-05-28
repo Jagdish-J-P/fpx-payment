@@ -23,7 +23,7 @@ This will generate the following files
 - The assets in public directory.
 - The view file with default html for you to override `payment.blade.php`. Note do not change form action URL `fpx.payment.auth.request`.
 
-## Setups
+## Setup
 
 1. Add your redirect urls and your Seller and Exchange Id to the `.env` file.
 
