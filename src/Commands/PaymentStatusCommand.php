@@ -77,7 +77,7 @@ class PaymentStatusCommand extends Command {
 			$this->newLine();
 			$this->newLine();
 
-			$this->table(array_keys(Arr::first($status)), $status);
+			$this->table(collect(Arr::first($status))->keys()->toArray(), $status);
 			$this->newLine();
 
 
