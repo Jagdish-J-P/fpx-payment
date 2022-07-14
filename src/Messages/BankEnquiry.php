@@ -235,6 +235,18 @@ class BankEnquiry extends Message implements Contract {
 				"name" => "BANK PERTANIAN MALAYSIA BERHAD (AGROBANK)",
 				"short_name" => "AGRONet"
 			],
+      [
+        "bank_id" => "BOCM01",
+        "status" => "offline",
+        "name" => "Bank Of China (M) Berhad",
+        "short_name" => "Bank Of China (M) Berhad"
+      ],
+      [
+        "bank_id" => "LOAD001",
+        "status" => "offline",
+        "name" => "LOAD001",
+        "short_name" => "LOAD001"
+      ]
 		]);
 
 		$banks = $banks->merge($this->getTestingBanks());

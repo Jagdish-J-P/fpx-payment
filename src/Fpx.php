@@ -52,7 +52,7 @@ class Fpx
 			}
 		}
 
-		return Bank::all()->sortBy('name')->pluck('name', 'bank_id');
+		return Bank::all()->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)->pluck('name', 'bank_id');
 	}
 
 	/**
