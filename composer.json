@@ -26,7 +26,6 @@
 	],
 	"require": {
 		"php": "^7.4|^8.0",
-		"illuminate/support": "^8.0",
 		"nesbot/carbon": "^2.48.0",
 		"laravelcollective/html": "^6.2",
 		"monarobase/country-list": "^3.2",
