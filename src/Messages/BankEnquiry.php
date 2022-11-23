@@ -283,6 +283,12 @@ class BankEnquiry extends Message implements Contract {
 				"short_name" => "Alliance Bank (Personal)"
 			],
 			[
+				"bank_id" => "AGRO01",
+				"status" => "offline",
+				"name" => "BANK PERTANIAN MALAYSIA BERHAD (AGROBANK)",
+				"short_name" => "AGRONet"
+			],
+			[
 				"bank_id" => "AMBB0209",
 				"status" => "offline",
 				"name" => "AmBank Malaysia Berhad",
@@ -305,6 +311,12 @@ class BankEnquiry extends Message implements Contract {
 				"status" => "offline",
 				"name" => "Bank Kerjasama Rakyat Malaysia Berhad ",
 				"short_name" => "Bank Rakyat"
+			],
+			[
+				"bank_id" => "BOCM01",
+				"status" => "offline",
+				"name" => "BANK OF CHINA (M) BERHAD",
+				"short_name" => "Bank Of China"
 			],
 			[
 				"bank_id" => "BSN0601",
@@ -341,6 +353,12 @@ class BankEnquiry extends Message implements Contract {
 				"status" => "offline",
 				"name" => "Kuwait Finance House (Malaysia) Berhad",
 				"short_name" => "KFH"
+			],
+			[
+				"bank_id" => "MBB0228",
+				"status" => "offline",
+				"name" => "Malayan Banking Berhad (M2E)",
+				"short_name" => "Maybank2E"
 			],
 			[
 				"bank_id" => "MB2U0227",
