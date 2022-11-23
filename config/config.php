@@ -99,11 +99,11 @@ return [
 	'certificates' => [
 		'uat' => [
 			'disk' => 'local', // S3 or Local. Don't put your certificate in public disk
-			'dir' => '/public/fpx/uat',
+			'dir' => '/fpx/uat',
 		],
 		'production' => [
 			'disk' => 'local', // S3 or Local. Don't put your certificate in public disk
-			'dir' => '/public/fpx/prod',
+			'dir' => '/fpx/prod',
 		]
 	],
 
