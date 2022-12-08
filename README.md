@@ -28,10 +28,11 @@ This will generate the following files
 1. Add your redirect urls and your Seller and Exchange Id to the `.env` file.
 
 ```php
-FPX_INDIRECT_URL=https://app.test/payments/fpx/callback
+
 FPX_INDIRECT_PATH=payments/fpx/callback
-FPX_DIRECT_URL=https://app.test/payments/fpx/direct-callback
-FPX_DIRECT_PATH=payments/fpx/direct-callback
+FPX_DIRECT_PATH=payments/fpx/webhook
+FPX_INDIRECT_URL="${APP_URL}/${FPX_INDIRECT_PATH}"
+FPX_DIRECT_URL="${APP_URL}/${FPX_DIRECT_PATH}"
 
 FPX_EXCHANGE_ID=
 FPX_SELLER_ID=
