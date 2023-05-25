@@ -69,6 +69,10 @@ You can override the defaults by updating the config file.
 ```bash
 php artisan migrate
 ```
+4. (Optional) Run this command if you encounter issue with the initial setup
+```bash
+php artisan optimize
+```
 
 ## Usage
 
