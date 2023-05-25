@@ -64,10 +64,15 @@ FPX_SELLER_ID=
 
 You can override the defaults by updating the config file.
 
-3. Run migration to add the banks and fpx_transactions table
+4. Run migration to add the banks and fpx_transactions table
 
 ```bash
 php artisan migrate
+```
+
+5. (Optional) Run this command if you encounter issue with the initial setup
+```bash
+php artisan optimize
 ```
 
 ## Usage
