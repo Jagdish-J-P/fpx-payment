@@ -2,6 +2,11 @@
 
 This package provides laravel implementations for Paynet FPX services.
 
+## Become a sponsor
+
+[![](.github/assets/support.png)](https://github.com/sponsors/Jagdish-J-P)
+
+Your support allows me to keep this package free, up-to-date and maintainable. Alternatively, you can **[spread the word!](http://twitter.com/share?text=I+am+using+this+cool+PHP+package&url=https://github.com/Jagdish-J-P/fpx-payment&hashtags=PHP,Laravel,FPX)**
 ## Installation
 
 You can install the package via composer:
@@ -25,7 +30,7 @@ This will generate the following files
 
 ## Setup
 
-1. Add your redirect urls and your Seller and Exchange Id to the `.env` file.
+1. Add your redirect urls and your Seller and Exchange ID to the `.env` file.
 
 ```php
 
