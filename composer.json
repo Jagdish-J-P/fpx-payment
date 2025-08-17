@@ -1,15 +1,15 @@
 {
-	"name": "jagdish-j-p/fpx-payment",
+	"name": "wanshamz/fpx-payment",
 	"description": "A laravel implementation for FPX payment service",
 	"keywords": [
-		"jagdish-j-p",
+		"wanshamz",
 		"FPX",
 		"FPX Payment Gateway",
 		"FPX Pay",
 		"fpx-payment",
 		"Malaysian Payment Gateway"
 	],
-	"homepage": "https://github.com/jagdish-j-p/fpx-payment",
+	"homepage": "https://github.com/wanshamz/fpx-payment",
 	"license": "MIT",
 	"type": "library",
 	"authors": [
@@ -38,12 +38,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"JagdishJP\\FpxPayment\\": "src"
+			"wanshamz\\FpxPayment\\": "src"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"JagdishJP\\FpxPayment\\Tests\\": "tests"
+			"wanshamz\\FpxPayment\\Tests\\": "tests"
 		}
 	},
 	"scripts": {
@@ -56,7 +56,7 @@
 	"extra": {
 		"laravel": {
 			"providers": [
-				"JagdishJP\\FpxPayment\\FpxPaymentServiceProvider"
+				"wanshamz\\FpxPayment\\FpxPaymentServiceProvider"
 			]
 		}
 	}
